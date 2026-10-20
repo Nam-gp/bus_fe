@@ -1,0 +1,18 @@
+<app-page-header tieuDe="Báo cáo" moTa="Quản lý chi nhánh · UC-016 Xem báo cáo · UC-017 Chốt lương tháng" />
+<section class="placeholder">
+  <p>Điều kiện tìm kiếm (Tháng, Chi nhánh, Ngày xét quá hạn) và 3 ô số tổng · Người A</p>
+</section>
+<p-tabs [value]="0">
+  <p-tablist>
+    @for (t of tabs; track t; let i = $index) {
+      <p-tab [value]="i">{{ t }}</p-tab>
+    }
+  </p-tablist>
+  <p-tabpanels>
+    @for (t of tabs; track t; let i = $index) {
+      <p-tabpanel [value]="i">
+        <section class="placeholder"><p>{{ t }} · Người A</p></section>
+      </p-tabpanel>
+    }
+  </p-tabpanels>
+</p-tabs>

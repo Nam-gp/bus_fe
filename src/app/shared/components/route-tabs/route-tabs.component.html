@@ -1,0 +1,10 @@
+<p-tabs [value]="tabDangMo()">
+  <p-tablist>
+    @for (t of tabs(); track t.duongDan) {
+      <p-tab [value]="t.duongDan" [routerLink]="t.duongDan">{{ t.nhan }}</p-tab>
+    }
+  </p-tablist>
+</p-tabs>
+<div class="tab-body">
+  <router-outlet />
+</div>

@@ -1,0 +1,41 @@
+<header class="topbar">
+  <span class="brand"><i class="pi pi-truck"></i> Quản lý chuỗi xe khách</span>
+  <span class="spacer"></span>
+  <div class="branch">
+    <span class="branch__label">Chi nhánh làm việc</span>
+    <p-select
+      [options]="branch.danhSach()"
+      optionLabel="tenCN"
+      optionValue="maCN"
+      [ngModel]="branch.maCN()"
+      (ngModelChange)="branch.chon($event)"
+    />
+  </div>
+  <span class="today"><i class="pi pi-calendar"></i> {{ today.homNay() | vnDate }}</span>
+</header>
+
+<div class="loading-slot">
+  @if (loading.dangTai()) {
+    <p-progressbar mode="indeterminate" [style]="{ height: '4px' }" />
+  }
+</div>
+
+<div class="body">
+  <nav class="sidenav">
+    @for (nhom of menu; track nhom.nhom) {
+      <div class="menu-group">{{ nhom.nhom }}</div>
+      @for (m of nhom.muc; track m.duongDan) {
+        <a class="menu-item" [routerLink]="m.duongDan" routerLinkActive="menu-item--active">
+          <i [class]="m.icon"></i> {{ m.nhan }}
+        </a>
+      }
+    }
+  </nav>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>
+
+<p-toast position="top-right" />
+<p-confirmdialog />

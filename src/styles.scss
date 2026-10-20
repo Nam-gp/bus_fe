@@ -1,0 +1,23 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* ===== QLXK – style dùng chung (chủ: C). Màu lấy từ token của theme PrimeNG (--p-*) ===== */
+html,
+body { height: 100%; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  color: var(--p-text-color);
+  background: var(--p-surface-50);
+}
+.tab-body { padding: 16px 0; }
+.placeholder {
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px dashed var(--p-content-border-color);
+  border-radius: 8px;
+  background: var(--p-content-background);
+  color: var(--p-text-muted-color);
+  h3 { margin: 0 0 8px; color: var(--p-text-color); }
+  p { margin: 0 0 8px; }
+}
