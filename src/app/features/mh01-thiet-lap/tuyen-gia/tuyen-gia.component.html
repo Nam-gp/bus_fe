@@ -1,4 +1,265 @@
-<section class="placeholder">
-  <h3>Tab 2 · Tuyến và giá vé</h3>
-  <p>UC-003 Thêm tuyến kèm giá vé · UC-004 Sửa bảng giá vé · Người A</p>
-</section>
+<div class="tuyen-gia-container">
+  @if (!branch.canEdit()) {
+    <div class="site-readonly-alert">
+      <i class="pi pi-lock"></i>
+      <div>
+        <strong>Chế độ Chỉ đọc tại {{ branch.tenCN() }} (/{{ branch.site() }}):</strong>
+        Danh mục tuyến đường và bảng giá vé được đồng bộ qua Linked Server từ nút chủ Hà Nội. Thao tác thêm tuyến hoặc sửa giá vé chỉ được thực hiện trên site Hà Nội (/hn).
+      </div>
+    </div>
+  }
+
+  <!-- Phần 1: Form Thêm tuyến kèm giá vé -->
+  @if (branch.canEdit()) {
+    <section class="card-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-map"></i> 1. Thêm tuyến kèm giá vé (UC-003)
+        </h3>
+        <span class="section-subtitle">
+          Thủ tục sp_ThemTuyenVaGia: Điểm đầu, điểm cuối, độ dài và 4 mức giá lưu trong 1 giao dịch. Lỗi bất kỳ thì không lưu gì.
+        </span>
+      </div>
+
+      <app-error-box [loi]="loiThemTuyen()" />
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="diemDau">Điểm đầu <span class="req">*</span></label>
+          <input
+            id="diemDau"
+            pInputText
+            [(ngModel)]="diemDau"
+            placeholder="VD: Hà Nội (Mỹ Đình)"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="diemCuoi">Điểm cuối <span class="req">*</span></label>
+          <input
+            id="diemCuoi"
+            pInputText
+            [(ngModel)]="diemCuoi"
+            placeholder="VD: Nam Định (Bến TT)"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="doDaiKm">Độ dài (km) <span class="req">*</span></label>
+          <p-inputnumber
+            id="doDaiKm"
+            [(ngModel)]="doDaiKm"
+            [min]="1"
+            suffix=" km"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="capDo">Cấp độ tuyến <span class="req">*</span></label>
+          <p-select
+            id="capDo"
+            [options]="capDoOptions"
+            [(ngModel)]="capDo"
+            optionLabel="label"
+            optionValue="value"
+          />
+        </div>
+      </div>
+
+      <div class="sub-heading">Giá vé theo 4 loại ngày (đ) — bắt buộc nhập đủ:</div>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="giaThuong">Ngày thường <span class="req">*</span></label>
+          <p-inputnumber
+            id="giaThuong"
+            [(ngModel)]="giaThuong"
+            [min]="1"
+            mode="decimal"
+            suffix=" đ"
+            [useGrouping]="true"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="giaCuoiTuan">Cuối tuần <span class="req">*</span></label>
+          <p-inputnumber
+            id="giaCuoiTuan"
+            [(ngModel)]="giaCuoiTuan"
+            [min]="1"
+            mode="decimal"
+            suffix=" đ"
+            [useGrouping]="true"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="giaMuaDL">Mùa du lịch <span class="req">*</span></label>
+          <p-inputnumber
+            id="giaMuaDL"
+            [(ngModel)]="giaMuaDL"
+            [min]="1"
+            mode="decimal"
+            suffix=" đ"
+            [useGrouping]="true"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="giaLeTet">Lễ tết <span class="req">*</span></label>
+          <p-inputnumber
+            id="giaLeTet"
+            [(ngModel)]="giaLeTet"
+            [min]="1"
+            mode="decimal"
+            suffix=" đ"
+            [useGrouping]="true"
+          />
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <p-button
+          label="Lưu tuyến và giá vé"
+          icon="pi pi-plus"
+          severity="danger"
+          [loading]="dangThemTuyen()"
+          (onClick)="themTuyen()"
+        />
+      </div>
+    </section>
+  }
+
+  <!-- Phần 2: Bảng danh sách tuyến và bảng giá vé -->
+  <section class="card-section">
+    <div class="section-header">
+      <div class="header-split">
+        <div>
+          <h3 class="section-title">
+            <i class="pi pi-table"></i> 2. Danh sách tuyến và bảng giá vé (UC-004)
+          </h3>
+          <span class="section-subtitle">
+            @if (branch.canEdit()) {
+              Sửa trực tiếp các ô giá vé theo loại ngày và nhấn "Lưu thay đổi giá" để cập nhật hàng loạt.
+            } @else {
+              Chế độ chỉ đọc từ nút {{ branch.tenCN() }} qua Linked Server.
+            }
+          </span>
+        </div>
+        @if (branch.canEdit()) {
+          <p-button
+            label="Lưu thay đổi giá"
+            icon="pi pi-save"
+            severity="danger"
+            [loading]="dangLuuGia()"
+            (onClick)="luuThayDoiGia()"
+          />
+        } @else {
+          <p-tag severity="secondary" icon="pi pi-lock" value="Chỉ sửa giá tại site Hà Nội (/hn)" />
+        }
+      </div>
+    </div>
+
+    <app-error-box [loi]="loiLuuGia()" />
+
+    <p-table
+      [value]="danhSachTuyen"
+      [loading]="dangTai()"
+      styleClass="p-datatable-sm p-datatable-gridlines"
+      [tableStyle]="{ 'min-width': '65rem' }"
+    >
+      <ng-template #header pTemplate="header">
+        <tr>
+          <th style="width: 90px">Mã</th>
+          <th style="min-width: 220px">Tuyến đường</th>
+          <th style="width: 100px; text-align: right">Độ dài</th>
+          <th style="width: 130px">Cấp độ</th>
+          <th style="width: 150px">Ngày thường (đ)</th>
+          <th style="width: 150px">Cuối tuần (đ)</th>
+          <th style="width: 150px">Mùa du lịch (đ)</th>
+          <th style="width: 150px">Lễ tết (đ)</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-t pTemplate="body">
+        <tr>
+          <td><strong class="code-tag">{{ t.maTuyen }}</strong></td>
+          <td>
+            <div class="route-name">
+              <span>{{ t.diemDau }}</span>
+              <i class="pi pi-arrow-right route-arrow"></i>
+              <span>{{ t.diemCuoi }}</span>
+            </div>
+          </td>
+          <td style="text-align: right">{{ t.doDaiKm }} km</td>
+          <td>
+            <span class="cap-tag" [ngClass]="'cap-' + t.capDo">
+              Cấp {{ t.capDo }}
+            </span>
+          </td>
+          <td>
+            @if (branch.canEdit()) {
+              <p-inputnumber
+                [(ngModel)]="t.giaThuongInput"
+                [min]="1"
+                mode="decimal"
+                [useGrouping]="true"
+                styleClass="p-inputtext-sm w-full"
+              />
+            } @else {
+              <span class="readonly-price">{{ t.giaThuong | vnd }}</span>
+            }
+          </td>
+          <td>
+            @if (branch.canEdit()) {
+              <p-inputnumber
+                [(ngModel)]="t.giaCuoiTuanInput"
+                [min]="1"
+                mode="decimal"
+                [useGrouping]="true"
+                styleClass="p-inputtext-sm w-full"
+              />
+            } @else {
+              <span class="readonly-price">{{ t.giaCuoiTuan | vnd }}</span>
+            }
+          </td>
+          <td>
+            @if (branch.canEdit()) {
+              <p-inputnumber
+                [(ngModel)]="t.giaMuaDLInput"
+                [min]="1"
+                mode="decimal"
+                [useGrouping]="true"
+                styleClass="p-inputtext-sm w-full"
+              />
+            } @else {
+              <span class="readonly-price">{{ t.giaMuaDL | vnd }}</span>
+            }
+          </td>
+          <td>
+            @if (branch.canEdit()) {
+              <p-inputnumber
+                [(ngModel)]="t.giaLeTetInput"
+                [min]="1"
+                mode="decimal"
+                [useGrouping]="true"
+                styleClass="p-inputtext-sm w-full"
+              />
+            } @else {
+              <span class="readonly-price">{{ t.giaLeTet | vnd }}</span>
+            }
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="empty-msg">Chưa có tuyến đường nào.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <div class="note-box">
+      <i class="pi pi-info-circle"></i>
+      <span><strong>Ghi chú:</strong> Giá vé chỉ phụ thuộc vào tuyến đường và loại ngày (F04), không phụ thuộc vào loại xe hay số ghế. Giá mới cập nhật chỉ áp dụng cho vé bán sau thời điểm lưu.</span>
+    </div>
+  </section>
+</div>

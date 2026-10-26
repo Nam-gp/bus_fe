@@ -1,4 +1,327 @@
-<section class="placeholder">
-  <h3>Tab 1 · Tham số</h3>
-  <p>UC-002 Thiết lập tham số · Người A</p>
-</section>
+<div class="tham-so-container">
+  @if (!branch.canEdit()) {
+    <div class="site-readonly-alert">
+      <i class="pi pi-lock"></i>
+      <div>
+        <strong>Chế độ Chỉ đọc tại {{ branch.tenCN() }} (/{{ branch.site() }}):</strong>
+        Dữ liệu tham số hệ thống được đồng bộ qua Linked Server từ nút chủ Hà Nội. Bạn chỉ có quyền xem, không thể chỉnh sửa từ site này.
+      </div>
+    </div>
+  }
+
+  <!-- Phần 1: Thù lao lái xe, phụ xe -->
+  <section class="card-section">
+    <div class="section-header">
+      <h3 class="section-title">
+        <i class="pi pi-wallet"></i> 1. Thù lao lái xe, phụ xe
+      </h3>
+      <span class="section-subtitle">Cấu hình công thức F01 tính thù lao cho từng phân công chuyến đi</span>
+    </div>
+
+    <app-error-box [loi]="loiThuLao()" />
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="donGiaKm">Đơn giá mỗi km (đ) <span class="req">*</span></label>
+        <p-inputnumber
+          id="donGiaKm"
+          [(ngModel)]="donGiaKm"
+          [min]="1"
+          mode="decimal"
+          suffix=" đ"
+          [useGrouping]="true"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 2.000 đ/km</small>
+      </div>
+
+      <div class="form-field">
+        <label for="hsLai">Hệ số vai trò lái xe <span class="req">*</span></label>
+        <p-inputnumber
+          id="hsLai"
+          [(ngModel)]="hsLai"
+          [min]="0.1"
+          [max]="5"
+          [minFractionDigits]="1"
+          [maxFractionDigits]="2"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 1,0</small>
+      </div>
+
+      <div class="form-field">
+        <label for="hsPhu">Hệ số vai trò phụ xe <span class="req">*</span></label>
+        <p-inputnumber
+          id="hsPhu"
+          [(ngModel)]="hsPhu"
+          [min]="0.1"
+          [max]="5"
+          [minFractionDigits]="1"
+          [maxFractionDigits]="2"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 0,6</small>
+      </div>
+
+      <div class="form-field">
+        <label for="hsLuongCap1">Hệ số lương cấp 1 (Đường bằng) <span class="req">*</span></label>
+        <p-inputnumber
+          id="hsLuongCap1"
+          [(ngModel)]="hsLuongCap1"
+          [min]="0.1"
+          [max]="5"
+          [minFractionDigits]="1"
+          [maxFractionDigits]="2"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 1,0</small>
+      </div>
+
+      <div class="form-field">
+        <label for="hsLuongCap2">Hệ số lương cấp 2 (Đèo nhẹ) <span class="req">*</span></label>
+        <p-inputnumber
+          id="hsLuongCap2"
+          [(ngModel)]="hsLuongCap2"
+          [min]="0.1"
+          [max]="5"
+          [minFractionDigits]="1"
+          [maxFractionDigits]="2"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 1,2</small>
+      </div>
+
+      <div class="form-field">
+        <label for="hsLuongCap3">Hệ số lương cấp 3 (Đèo dốc) <span class="req">*</span></label>
+        <p-inputnumber
+          id="hsLuongCap3"
+          [(ngModel)]="hsLuongCap3"
+          [min]="0.1"
+          [max]="5"
+          [minFractionDigits]="1"
+          [maxFractionDigits]="2"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 1,5</small>
+      </div>
+    </div>
+
+    <!-- Khung ví dụ tính toán thời gian thực theo F01 -->
+    <div class="formula-box">
+      <div class="formula-title">
+        <i class="pi pi-calculator"></i> Ví dụ tính toán tự động theo công thức F01 (Tuyến Hà Nội – Vinh 300 km, cấp 2):
+      </div>
+      <div class="formula-content">
+        <div class="formula-line">
+          <strong>Lái xe:</strong> 300 km × {{ donGiaKm | vnd }} × {{ hsLuongCap2 }} (cấp 2) × {{ hsLai }} (HS lái) =
+          <span class="highlight-val">{{ viDuLaiXe | vnd }}</span>
+        </div>
+        <div class="formula-line">
+          <strong>Phụ xe:</strong> 300 km × {{ donGiaKm | vnd }} × {{ hsLuongCap2 }} (cấp 2) × {{ hsPhu }} (HS phụ) =
+          <span class="highlight-val">{{ viDuPhuXe | vnd }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      @if (branch.canEdit()) {
+        <p-button
+          label="Lưu tham số thù lao"
+          icon="pi pi-check"
+          severity="danger"
+          [loading]="dangLuuThuLao()"
+          (onClick)="luuThuLao()"
+        />
+      } @else {
+        <p-tag severity="secondary" icon="pi pi-lock" value="Chỉ có quyền lưu tại site Hà Nội (/hn)" />
+      }
+    </div>
+  </section>
+
+  <!-- Phần 2: Bảo dưỡng và đăng kiểm -->
+  <section class="card-section">
+    <div class="section-header">
+      <h3 class="section-title">
+        <i class="pi pi-cog"></i> 2. Bảo dưỡng và đăng kiểm
+      </h3>
+      <span class="section-subtitle">Cấu hình chu kỳ bảo dưỡng, chu kỳ đăng kiểm xe cũ/mới và hệ số đường khó F10, F11</span>
+    </div>
+
+    <app-error-box [loi]="loiBaoDuong()" />
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="chuKyBd">Chu kỳ bảo dưỡng tối đa (ngày) <span class="req">*</span></label>
+        <p-inputnumber
+          id="chuKyBd"
+          [(ngModel)]="chuKyBd"
+          [min]="30"
+          suffix=" ngày"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 360 ngày</small>
+      </div>
+
+      <div class="form-field">
+        <label for="kmMoiNgayBd">Km làm việc giảm 1 ngày BD <span class="req">*</span></label>
+        <p-inputnumber
+          id="kmMoiNgayBd"
+          [(ngModel)]="kmMoiNgayBd"
+          [min]="10"
+          suffix=" km"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 100 km (F11)</small>
+      </div>
+
+      <div class="form-field">
+        <label for="canhBaoNgay">Ngưỡng cảnh báo sắp đến hạn (ngày) <span class="req">*</span></label>
+        <p-inputnumber
+          id="canhBaoNgay"
+          [(ngModel)]="canhBaoNgay"
+          [min]="1"
+          suffix=" ngày"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 15 ngày (F14)</small>
+      </div>
+
+      <div class="form-field">
+        <label for="hsDuongKhoCap1">Hệ số đường khó cấp 1 <span class="req">*</span></label>
+        <p-inputnumber
+          id="hsDuongKhoCap1"
+          [(ngModel)]="hsDuongKhoCap1"
+          [min]="1.0"
+          [minFractionDigits]="1"
+          [maxFractionDigits]="2"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 1,0 (≥ 1,0)</small>
+      </div>
+
+      <div class="form-field">
+        <label for="hsDuongKhoCap2">Hệ số đường khó cấp 2 <span class="req">*</span></label>
+        <p-inputnumber
+          id="hsDuongKhoCap2"
+          [(ngModel)]="hsDuongKhoCap2"
+          [min]="1.0"
+          [minFractionDigits]="1"
+          [maxFractionDigits]="2"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 1,3 (≥ 1,0)</small>
+      </div>
+
+      <div class="form-field">
+        <label for="hsDuongKhoCap3">Hệ số đường khó cấp 3 <span class="req">*</span></label>
+        <p-inputnumber
+          id="hsDuongKhoCap3"
+          [(ngModel)]="hsDuongKhoCap3"
+          [min]="1.0"
+          [minFractionDigits]="1"
+          [maxFractionDigits]="2"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 1,6 (≥ 1,0)</small>
+      </div>
+
+      <div class="form-field">
+        <label for="chuKyDkCu">Chu kỳ đăng kiểm xe cũ (tháng) <span class="req">*</span></label>
+        <p-inputnumber
+          id="chuKyDkCu"
+          [(ngModel)]="chuKyDkCu"
+          [min]="1"
+          suffix=" tháng"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 6 tháng</small>
+      </div>
+
+      <div class="form-field">
+        <label for="chuKyDkMoi">Chu kỳ đăng kiểm xe mới (tháng) <span class="req">*</span></label>
+        <p-inputnumber
+          id="chuKyDkMoi"
+          [(ngModel)]="chuKyDkMoi"
+          [min]="1"
+          suffix=" tháng"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 12 tháng</small>
+      </div>
+
+      <div class="form-field">
+        <label for="tuoiXeCu">Tuổi xe tính là xe cũ (năm) <span class="req">*</span></label>
+        <p-inputnumber
+          id="tuoiXeCu"
+          [(ngModel)]="tuoiXeCu"
+          [min]="1"
+          suffix=" năm"
+          [disabled]="!branch.canEdit()"
+        />
+        <small class="field-hint">Mặc định: 5 năm</small>
+      </div>
+    </div>
+
+    <!-- Khung công thức F10, F11, F13 -->
+    <div class="formula-box">
+      <div class="formula-title">
+        <i class="pi pi-info-circle"></i> Công thức nghiệp vụ bảo dưỡng và đăng kiểm (SRS F10, F11, F13):
+      </div>
+      <div class="formula-content">
+        <div class="formula-line">
+          • <strong>Km làm việc (F10):</strong> Σ (KmThucTe × HeSoDuongKho[cấp tuyến]) của các chuyến Hoàn thành kể từ lần BD gần nhất.
+        </div>
+        <div class="formula-line">
+          • <strong>Hạn bảo dưỡng tiếp theo (F11):</strong> Ngày BD gần nhất + {{ chuKyBd }} ngày − ⌊Km làm việc ÷ {{ kmMoiNgayBd }}⌋ ngày.
+        </div>
+        <div class="formula-line">
+          • <strong>Chu kỳ đăng kiểm (F12, F13):</strong> Xe từ {{ tuoiXeCu }} năm tuổi tính chu kỳ {{ chuKyDkCu }} tháng, dưới {{ tuoiXeCu }} năm tuổi tính {{ chuKyDkMoi }} tháng.
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      @if (branch.canEdit()) {
+        <p-button
+          label="Lưu tham số bảo dưỡng, đăng kiểm"
+          icon="pi pi-check"
+          severity="danger"
+          [loading]="dangLuuBaoDuong()"
+          (onClick)="luuBaoDuong()"
+        />
+      } @else {
+        <p-tag severity="secondary" icon="pi pi-lock" value="Chỉ có quyền lưu tại site Hà Nội (/hn)" />
+      }
+    </div>
+  </section>
+
+  <!-- Phần 3: Lịch loại ngày (quyết định giá vé) -->
+  <section class="card-section">
+    <div class="section-header">
+      <h3 class="section-title">
+        <i class="pi pi-calendar"></i> Lịch loại ngày (quyết định giá vé)
+      </h3>
+    </div>
+
+    <p-table
+      [value]="lichLoaiNgayList"
+      styleClass="p-datatable-sm"
+      [tableStyle]="{ 'min-width': '45rem' }"
+    >
+      <ng-template #header pTemplate="header">
+        <tr>
+          <th style="width: 200px">Loại ngày</th>
+          <th>Áp dụng cho ngày</th>
+          <th style="width: 250px">Mức so với ngày thường</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-item pTemplate="body">
+        <tr>
+          <td><strong>{{ item.loaiNgay }}</strong></td>
+          <td>{{ item.apDung }}</td>
+          <td>{{ item.mucGia }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+</div>

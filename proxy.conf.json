@@ -1,4 +1,22 @@
 {
+  "/hn/api": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/dn/api": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/hcm/api": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
   "/api": {
     "target": "http://localhost:8080",
     "secure": false,
@@ -6,3 +24,4 @@
     "logLevel": "info"
   }
 }
+

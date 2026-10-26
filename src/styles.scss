@@ -21,3 +21,8 @@ body {
   h3 { margin: 0 0 8px; color: var(--p-text-color); }
   p { margin: 0 0 8px; }
 }
+
+/* Ẩn badge watermark của PrimeUI */
+#p-license-host {
+  display: none !important;
+}

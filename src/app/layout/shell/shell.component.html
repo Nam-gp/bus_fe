@@ -1,17 +1,40 @@
 <header class="topbar">
-  <span class="brand"><i class="pi pi-truck"></i> Quản lý chuỗi xe khách</span>
+  <span class="brand">
+    <i class="pi pi-truck"></i> Quản lý chuỗi xe khách
+  </span>
+
   <span class="spacer"></span>
+
   <div class="branch">
-    <span class="branch__label">Chi nhánh làm việc</span>
+    <span class="branch__label">Site chi nhánh:</span>
     <p-select
-      [options]="branch.danhSach()"
+      [options]="branch.danhSachSites"
       optionLabel="tenCN"
-      optionValue="maCN"
-      [ngModel]="branch.maCN()"
-      (ngModelChange)="branch.chon($event)"
+      optionValue="code"
+      [ngModel]="branch.site()"
+      (ngModelChange)="onSiteChange($event)"
+      styleClass="p-inputtext-sm"
     />
+    @if (branch.isHn()) {
+      <p-tag
+        value="Nút chủ HN · Quyền Ghi & Đọc"
+        severity="success"
+        icon="pi pi-shield"
+        pTooltip="Site Hà Nội (/hn) có toàn quyền cập nhật các thiết lập chung"
+      />
+    } @else {
+      <p-tag
+        [value]="'Nút ' + branch.tenCN() + ' · Chỉ đọc (Linked Server)'"
+        severity="warn"
+        icon="pi pi-eye"
+        pTooltip="Site chỉ có quyền đọc dữ liệu dùng chung thông qua Linked Server"
+      />
+    }
   </div>
-  <span class="today"><i class="pi pi-calendar"></i> {{ today.homNay() | vnDate }}</span>
+
+  <span class="today">
+    <i class="pi pi-calendar"></i> {{ today.homNay() | vnDate }}
+  </span>
 </header>
 
 <div class="loading-slot">
@@ -25,7 +48,12 @@
     @for (nhom of menu; track nhom.nhom) {
       <div class="menu-group">{{ nhom.nhom }}</div>
       @for (m of nhom.muc; track m.duongDan) {
-        <a class="menu-item" [routerLink]="m.duongDan" routerLinkActive="menu-item--active">
+        <a
+          class="menu-item"
+          [routerLink]="['/', branch.site(), m.duongDan]"
+          routerLinkActive="menu-item--active"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
           <i [class]="m.icon"></i> {{ m.nhan }}
         </a>
       }
