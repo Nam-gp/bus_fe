@@ -1,14 +1,42 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router, Routes } from '@angular/router';
+import { BranchContextService, SITES, SiteCode } from './core/services/branch-context.service';
 import { ShellComponent } from './layout/shell/shell.component';
 
 /**
- * Routing gốc – tạo 1 lần ở Sprint 0 rồi khóa (CODEOWNERS: C).
- * Mỗi màn hình lazy-load file routes riêng của người phụ trách.
+ * Guard kiểm tra tiền tố site trên URL (/hn, /dn, /hcm).
+ * Nếu không hợp lệ thì chuyển hướng về /hn.
  */
+export const siteGuard: CanActivateFn = (route) => {
+  const router = inject(Router);
+  const branchContext = inject(BranchContextService);
+  const siteParam = (route.paramMap.get('site') || '').toLowerCase();
+
+  if (siteParam === 'hn' || siteParam === 'dn' || siteParam === 'hcm') {
+    branchContext.syncFromUrl('/' + siteParam);
+    return true;
+  }
+
+  return router.createUrlTree(['/hn/thiet-lap']);
+};
+
 export const routes: Routes = [
+  // Chuyển hướng gốc về site Hà Nội (/hn)
+  { path: '', pathMatch: 'full', redirectTo: 'hn/thiet-lap' },
+
+  // Chuyển hướng các đường dẫn không có prefix site về /hn/...
+  { path: 'thiet-lap', pathMatch: 'full', redirectTo: 'hn/thiet-lap' },
+  { path: 'thiet-lap/:tab', redirectTo: 'hn/thiet-lap/:tab' },
+  { path: 'chuyen-xe', redirectTo: 'hn/chuyen-xe' },
+  { path: 'ban-ve', redirectTo: 'hn/ban-ve' },
+  { path: 'ky-thuat', redirectTo: 'hn/ky-thuat' },
+  { path: 'bao-cao', redirectTo: 'hn/bao-cao' },
+
+  // Nhánh định tuyến theo site: /hn, /dn, /hcm
   {
-    path: '',
+    path: ':site',
     component: ShellComponent,
+    canActivate: [siteGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'thiet-lap' },
       {
@@ -38,5 +66,5 @@ export const routes: Routes = [
       },
     ],
   },
-  { path: '**', redirectTo: '' },
+  { path: '**', redirectTo: 'hn/thiet-lap' },
 ];

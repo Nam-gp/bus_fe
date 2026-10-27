@@ -1,4 +1,201 @@
-<section class="placeholder">
-  <h3>Tab 4 · Tài xế</h3>
-  <p>UC-007 Thêm tài xế · Người A</p>
-</section>
+<div class="tai-xe-container">
+  <!-- Phần 1: Form Thêm tài xế (cho phép ở cả HN, DN, HCM) -->
+  <section class="card-section">
+    <div class="section-header">
+      <h3 class="section-title">
+        <i class="pi pi-user-plus"></i> 1. Thêm tài xế mới (UC-007)
+      </h3>
+      <span class="section-subtitle">
+        Tài xế sẽ tự động trực thuộc chi nhánh <strong>{{ branch.tenCN() }}</strong> ({{ branch.maCN() }}) theo site đang làm việc.
+      </span>
+    </div>
+
+    <app-error-box [loi]="loiThem()" />
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="hoTen">Họ và tên <span class="req">*</span></label>
+        <input
+          id="hoTen"
+          pInputText
+          [(ngModel)]="hoTen"
+          placeholder="VD: Nguyễn Văn An"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="namSinh">Năm sinh <span class="req">*</span></label>
+        <p-inputnumber
+          id="namSinh"
+          [(ngModel)]="namSinh"
+          [min]="1950"
+          [max]="2005"
+          [useGrouping]="false"
+          placeholder="VD: 1990"
+        />
+        <small class="field-hint">Phải đủ 21 tuổi (≤ 2005)</small>
+      </div>
+
+      <div class="form-field">
+        <label for="cccd">Số CCCD (12 chữ số) <span class="req">*</span></label>
+        <input
+          id="cccd"
+          pInputText
+          [(ngModel)]="cccd"
+          maxlength="12"
+          placeholder="001090123456"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="hangGplx">Hạng GPLX <span class="req">*</span></label>
+        <p-select
+          id="hangGplx"
+          [options]="hangOptions"
+          [(ngModel)]="hangGplx"
+          optionLabel="label"
+          optionValue="value"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="soGplx">Số GPLX</label>
+        <input
+          id="soGplx"
+          pInputText
+          [(ngModel)]="soGplx"
+          placeholder="GPLX123456 (để trống tự sinh)"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="soDienThoai">Số điện thoại</label>
+        <input
+          id="soDienThoai"
+          pInputText
+          [(ngModel)]="soDienThoai"
+          maxlength="10"
+          placeholder="0912345678"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="diaChi">Tỉnh / Thành phố</label>
+        <input
+          id="diaChi"
+          pInputText
+          [(ngModel)]="tinh"
+          [placeholder]="branch.tenCN()"
+        />
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <p-button
+        label="Thêm tài xế"
+        icon="pi pi-check"
+        severity="danger"
+        [loading]="dangThem()"
+        (onClick)="themTaiXe()"
+      />
+    </div>
+  </section>
+
+  <!-- Phần 2: Bảng Danh sách tài xế -->
+  <section class="card-section">
+    <div class="section-header">
+      <div class="header-split">
+        <div>
+          <h3 class="section-title">
+            <i class="pi pi-users"></i> 2. Danh sách tài xế
+          </h3>
+          <span class="section-subtitle">
+            Phân mảnh ngang theo MaCN · Tài xế chỉ được phân công chuyến có xe cùng chi nhánh.
+          </span>
+        </div>
+        <div class="branch-filter">
+          <span class="filter-label">Chi nhánh:</span>
+          <p-select
+            [options]="chiNhanhOptions"
+            [ngModel]="chiNhanhLoc"
+            (ngModelChange)="doiChiNhanhLoc($event)"
+            optionLabel="label"
+            optionValue="value"
+          />
+          @if (!coQuyenThaoTac()) {
+            <p-tag
+              severity="secondary"
+              icon="pi pi-eye"
+              [value]="'Chỉ xem (Đang ở site ' + branch.tenCN() + ')'"
+            />
+          } @else {
+            <p-tag
+              severity="success"
+              icon="pi pi-shield"
+              value="Có quyền thao tác"
+            />
+          }
+        </div>
+      </div>
+    </div>
+
+    <p-table
+      [value]="danhSachTaiXe"
+      [loading]="dangTai()"
+      styleClass="p-datatable-sm p-datatable-striped"
+      [tableStyle]="{ 'min-width': '65rem' }"
+    >
+      <ng-template #header pTemplate="header">
+        <tr>
+          <th style="width: 100px">Mã TX</th>
+          <th style="min-width: 160px">Họ và tên</th>
+          <th style="width: 100px">Năm sinh</th>
+          <th style="width: 140px">CCCD</th>
+          <th style="width: 80px">Hạng</th>
+          <th style="width: 120px">Điện thoại</th>
+          <th style="width: 100px; text-align: right">Số chuyến</th>
+          <th style="width: 140px; text-align: right">Thù lao tháng</th>
+          <th style="width: 130px; text-align: center">Trạng thái</th>
+          @if (coQuyenThaoTac()) {
+            <th style="width: 120px; text-align: center">Thao tác</th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #body let-tx pTemplate="body">
+        <tr>
+          <td><strong class="code-tag">{{ tx.maTX }}</strong></td>
+          <td>{{ tx.hoTen }}</td>
+          <td>{{ tx.namSinh || (tx.ngaySinh | date:'yyyy') }}</td>
+          <td><code>{{ tx.cccd }}</code></td>
+          <td><span class="hang-badge">Hạng {{ tx.hangGplx }}</span></td>
+          <td>{{ tx.soDienThoai || '—' }}</td>
+          <td style="text-align: right">{{ tx.soChuyen ?? 0 }}</td>
+          <td style="text-align: right"><strong>{{ tx.thuLaoThang | vnd }}</strong></td>
+          <td style="text-align: center">
+            <p-tag
+              [value]="tx.trangThai === 'DangLam' ? 'Đang làm' : 'Nghỉ việc'"
+              [severity]="tx.trangThai === 'DangLam' ? 'success' : 'secondary'"
+            />
+          </td>
+          @if (coQuyenThaoTac()) {
+            <td style="text-align: center">
+              <p-button
+                [label]="tx.trangThai === 'DangLam' ? 'Nghỉ việc' : 'Đi làm lại'"
+                [icon]="tx.trangThai === 'DangLam' ? 'pi pi-ban' : 'pi pi-check'"
+                [severity]="tx.trangThai === 'DangLam' ? 'warn' : 'success'"
+                [text]="true"
+                size="small"
+                (onClick)="doiTrangThai(tx)"
+              />
+            </td>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="coQuyenThaoTac() ? 10 : 9" class="empty-msg">Chi nhánh chưa có tài xế nào.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+</div>

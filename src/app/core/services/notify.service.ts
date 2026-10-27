@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
 
 /**
- * Thông báo nổi (p-toast trong ShellComponent): xanh khi lưu thành công, đỏ khi lỗi kết nối (E32).
+ * Thông báo nổi (p-toast trong ShellComponent): xanh khi lưu thành công, đỏ khi lỗi kết nối (E32), vàng khi cảnh báo.
  * Lỗi nghiệp vụ hiện trong <app-error-box> dưới form, không dùng toast.
  */
 @Injectable({ providedIn: 'root' })
@@ -11,6 +11,10 @@ export class NotifyService {
 
   thanhCong(thongBao: string, tieuDe = 'Thành công'): void {
     this.messages.add({ severity: 'success', summary: tieuDe, detail: thongBao, life: 4000 });
+  }
+
+  canhBao(thongBao: string, tieuDe = 'Cảnh báo'): void {
+    this.messages.add({ severity: 'warn', summary: tieuDe, detail: thongBao, life: 5000 });
   }
 
   loi(thongBao: string, tieuDe = 'Lỗi'): void {

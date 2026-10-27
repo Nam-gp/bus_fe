@@ -1,0 +1,233 @@
+.bao-cao-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 30px;
+}
+
+.site-readonly-alert {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #3b82f6;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #1e40af;
+  line-height: 1.4;
+
+  i {
+    font-size: 1.25rem;
+    color: #2563eb;
+    flex-shrink: 0;
+  }
+}
+
+.filter-section {
+  background: var(--p-content-background, #ffffff);
+  border: 1px solid var(--p-content-border-color, #e2e8f0);
+  border-radius: 10px;
+  padding: 16px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    align-items: flex-end;
+  }
+
+  .filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--p-text-color, #334155);
+
+      .req {
+        color: #c93a3a;
+      }
+    }
+
+    p-select,
+    input {
+      width: 100%;
+    }
+  }
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.metric-card {
+  background: var(--p-content-background, #ffffff);
+  border: 1px solid var(--p-content-border-color, #e2e8f0);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  .metric-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .metric-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+
+    .metric-label {
+      font-size: 0.85rem;
+      color: var(--p-text-muted-color, #64748b);
+      font-weight: 500;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--p-text-color, #0f172a);
+      line-height: 1.2;
+    }
+
+    .metric-sub {
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+  }
+
+  &.metric-revenue {
+    border-left: 4px solid #10b981;
+    .metric-icon {
+      background: #ecfdf5;
+      color: #059669;
+    }
+    .metric-value {
+      color: #047857;
+    }
+  }
+
+  &.metric-tickets {
+    border-left: 4px solid #3b82f6;
+    .metric-icon {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+    .metric-value {
+      color: #1d4ed8;
+    }
+  }
+
+  &.metric-salary {
+    border-left: 4px solid #c93a3a;
+    .metric-icon {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+    .metric-value {
+      color: #b91c1c;
+    }
+  }
+}
+
+.tabs-section {
+  background: var(--p-content-background, #ffffff);
+  border: 1px solid var(--p-content-border-color, #e2e8f0);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  .tab-content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+.chot-luong-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+
+  .chot-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #334155;
+
+    i {
+      color: #3b82f6;
+    }
+  }
+}
+
+.progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  p-progressbar {
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .pct-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    width: 44px;
+    text-align: right;
+  }
+}
+
+.section-notice {
+  background: #fef2f2;
+  border-left: 4px solid #ef4444;
+  padding: 10px 14px;
+  border-radius: 4px 8px 8px 4px;
+  font-size: 0.875rem;
+  color: #991b1b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.danger-row {
+  background: #fff5f5 !important;
+}
+
+.price-val {
+  color: #0f172a;
+}
+
+.empty-msg {
+  text-align: center;
+  color: var(--p-text-muted-color);
+  padding: 24px;
+}
