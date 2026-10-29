@@ -4,28 +4,27 @@
     moTa="Quản lý chi nhánh · UC-016 Xem báo cáo (5 Tab) · UC-017 Chốt lương tháng"
   />
 
-  @if (!branch.canEdit()) {
+  @if (!branch.isHn()) {
     <div class="site-readonly-alert">
       <i class="pi pi-info-circle"></i>
       <div>
         <strong>Chế độ Xem báo cáo tại {{ branch.tenCN() }} (/{{ branch.site() }}):</strong>
-        Bạn có thể xem đầy đủ doanh thu và lương của chi nhánh hoặc toàn chuỗi. Quyền chốt lương tháng vào bảng cố định (BangLuong) chỉ cho phép thực hiện từ nút chủ Hà Nội (/hn).
+        Dữ liệu chi nhánh được cố định là {{ branch.tenCN() }} ({{ branch.maCN() }}). Bạn có thể thay đổi Tháng và Ngày xét báo cáo xe quá hạn. Quyền chốt lương tháng vào bảng cố định (BangLuong) chỉ cho phép thực hiện tại nút chủ Hà Nội (/hn).
       </div>
     </div>
   }
 
   <app-error-box [loi]="loi()" />
 
-  <!-- Thanh bộ lọc điều kiện tìm kiếm -->
+  <!-- Thanh bộ lọc điều kiện tìm kiếm chuẩn prototype -->
   <section class="filter-section">
     <div class="filter-grid">
       <div class="filter-item">
-        <label for="thang">Tháng báo cáo <span class="req">*</span></label>
+        <label for="thang">Tháng</label>
         <p-select
           id="thang"
           [options]="thangOptions"
           [(ngModel)]="thang"
-          (ngModelChange)="onFilterChange()"
           optionLabel="label"
           optionValue="value"
         />
@@ -37,56 +36,57 @@
           id="maCN"
           [options]="chiNhanhOptions"
           [(ngModel)]="maCN"
-          (ngModelChange)="onFilterChange()"
+          [disabled]="isBranchDisabled"
           optionLabel="label"
           optionValue="value"
         />
       </div>
 
       <div class="filter-item">
-        <label for="ngayXet">Ngày xét quá hạn (Tab 5)</label>
+        <label for="ngayXet">Ngày xét (báo cáo xe quá hạn)</label>
         <input
           id="ngayXet"
-          type="date"
-          class="p-inputtext p-component"
+          type="text"
+          class="p-inputtext p-component custom-date-input"
           [(ngModel)]="ngayXet"
-          (ngModelChange)="onFilterChange()"
+          (input)="onNgayXetInput()"
+          (keyup.enter)="capNhatDuLieu()"
+          placeholder="YYYY-MM-DD"
+        />
+      </div>
+
+      <div class="filter-actions">
+        <p-button
+          label="Cập nhật"
+          icon="pi pi-refresh"
+          severity="danger"
+          [loading]="dangTai()"
+          (onClick)="capNhatDuLieu()"
+          styleClass="btn-update"
         />
       </div>
     </div>
   </section>
 
-  <!-- 3 Ô số tổng đầu màn hình (F15 Doanh thu, Số vé, F02 Lương) -->
+  <!-- 3 Thẻ số liệu tổng hợp chuẩn prototype -->
   <section class="metrics-grid">
-    <div class="metric-card metric-revenue">
-      <div class="metric-icon"><i class="pi pi-dollar"></i></div>
-      <div class="metric-content">
-        <span class="metric-label">Doanh thu tháng (Chuyến hoàn thành)</span>
-        <span class="metric-value">{{ (tongHopData().doanhThuThang ?? 0) | vnd }}</span>
-        <span class="metric-sub">Công thức F15 · Vé Đã bán</span>
-      </div>
+    <div class="metric-card">
+      <span class="metric-label">Doanh thu tháng {{ getThangHienThi() }}</span>
+      <span class="metric-value">{{ (tongHopData().doanhThuThang ?? 0) | vnd }}</span>
     </div>
 
-    <div class="metric-card metric-tickets">
-      <div class="metric-icon"><i class="pi pi-ticket"></i></div>
-      <div class="metric-content">
-        <span class="metric-label">Số vé tính doanh thu</span>
-        <span class="metric-value">{{ (tongHopData().soVeTinhDoanhThu ?? 0) | number }} vé</span>
-        <span class="metric-sub">Chuyến Hoàn thành trong tháng</span>
-      </div>
+    <div class="metric-card">
+      <span class="metric-label">Số vé đã bán</span>
+      <span class="metric-value">{{ (tongHopData().soVeTinhDoanhThu ?? 0) | number }}</span>
     </div>
 
-    <div class="metric-card metric-salary">
-      <div class="metric-icon"><i class="pi pi-users"></i></div>
-      <div class="metric-content">
-        <span class="metric-label">Tổng lương tài xế</span>
-        <span class="metric-value">{{ (tongHopData().tongLuongTaiXe ?? 0) | vnd }}</span>
-        <span class="metric-sub">Công thức F02 · Phân công hoàn thành</span>
-      </div>
+    <div class="metric-card">
+      <span class="metric-label">Tổng lương tài xế</span>
+      <span class="metric-value">{{ (tongHopData().tongLuongTaiXe ?? 0) | vnd }}</span>
     </div>
   </section>
 
-  <!-- 5 Tab Báo cáo chi tiết -->
+  <!-- 5 Tab Báo cáo chi tiết chuẩn prototype -->
   <section class="tabs-section">
     <p-tabs [value]="activeTab" (valueChange)="onTabChange($event)">
       <p-tablist>
@@ -95,35 +95,9 @@
         }
       </p-tablist>
       <p-tabpanels>
-        <!-- Tab 1: Lương tài xế & Chốt lương -->
+        <!-- Tab 1: Lương tài xế -->
         <p-tabpanel [value]="0">
           <div class="tab-content">
-            <div class="chot-luong-bar">
-              <div class="chot-status">
-                <i class="pi pi-info-circle"></i>
-                <span>
-                  {{ trangThaiChot()?.thongBao || 'Đang kiểm tra trạng thái chốt lương...' }}
-                </span>
-                @if (trangThaiChot()?.daChot) {
-                  <p-tag value="ĐÃ CHỐT" severity="success" />
-                } @else {
-                  <p-tag value="CHƯA CHỐT" severity="warn" />
-                }
-              </div>
-
-              @if (branch.canEdit()) {
-                <p-button
-                  [label]="'Chốt lương tháng ' + thang"
-                  icon="pi pi-lock"
-                  severity="danger"
-                  [loading]="dangChotLuong()"
-                  (onClick)="chotLuongThang()"
-                />
-              } @else {
-                <p-tag severity="secondary" icon="pi pi-lock" value="Chỉ chốt lương tại site Hà Nội (/hn)" />
-              }
-            </div>
-
             <p-table
               [value]="luongList()"
               [loading]="dangTai()"
@@ -155,144 +129,101 @@
                 </tr>
               </ng-template>
             </p-table>
+
+            <!-- Phần nút chốt lương và thông tin đặt ở dưới bảng giống Prototype -->
+            <div class="chot-luong-bottom">
+              <div>
+                @if (branch.isHn()) {
+                  <button
+                    type="button"
+                    class="btn-chot-luong-proto"
+                    [disabled]="trangThaiChot()?.daChot || dangChotLuong()"
+                    (click)="chotLuongThang()"
+                  >
+                    @if (dangChotLuong()) {
+                      <i class="pi pi-spin pi-spinner"></i> Đang chốt...
+                    } @else {
+                      Chốt lương tháng {{ thangDaApDung() }}
+                    }
+                  </button>
+                } @else {
+                  <button
+                    type="button"
+                    class="btn-chot-luong-proto disabled-site"
+                    disabled
+                  >
+                    Chỉ chốt lương tại site Hà Nội (/hn)
+                  </button>
+                }
+              </div>
+
+              <div class="bl-info-text">
+                {{ getBlInfo() }}
+              </div>
+            </div>
           </div>
         </p-tabpanel>
 
-        <!-- Tab 2: Doanh thu theo xe -->
+        <!-- Tab 2: Doanh thu theo xe (Chuẩn Prototype: chỉ hiển thị thanh ngang, chuyến 0đ không hiển thị) -->
         <p-tabpanel [value]="1">
           <div class="tab-content">
-            <p-table
-              [value]="dtXeList()"
-              [loading]="dangTai()"
-              styleClass="p-datatable-sm p-datatable-striped"
-            >
-              <ng-template #header pTemplate="header">
-                <tr>
-                  <th style="width: 100px">Mã xe</th>
-                  <th style="width: 140px">Biển số</th>
-                  <th style="width: 160px">Loại xe</th>
-                  <th style="width: 130px">Chi nhánh</th>
-                  <th style="width: 100px; text-align: right">Số chuyến</th>
-                  <th style="width: 100px; text-align: right">Số vé</th>
-                  <th style="min-width: 220px">Tỷ lệ đóng góp</th>
-                  <th style="width: 170px; text-align: right">Doanh thu (đ)</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-r pTemplate="body">
-                <tr>
-                  <td><strong>{{ r.maXe }}</strong></td>
-                  <td>{{ r.bienSo }}</td>
-                  <td>{{ r.tenLoaiXe }}</td>
-                  <td>{{ r.tenCN || r.maCN }}</td>
-                  <td style="text-align: right">{{ r.soChuyen }}</td>
-                  <td style="text-align: right">{{ r.soVe }}</td>
-                  <td>
-                    <div class="progress-wrap">
-                      <p-progressbar [value]="r.tyLe" [showValue]="false" styleClass="h-2" />
-                      <span class="pct-label">{{ r.tyLe | number:'1.1-1' }}%</span>
+            @if (dtXeBars.length > 0) {
+              <div class="bars-container">
+                @for (b of dtXeBars; track b.label) {
+                  <div class="bar-row">
+                    <span class="bar-label">{{ b.label }}</span>
+                    <div class="bar-track">
+                      <div class="bar-fill" [style.width]="b.w"></div>
                     </div>
-                  </td>
-                  <td style="text-align: right"><strong class="price-val">{{ r.doanhThu | vnd }}</strong></td>
-                </tr>
-              </ng-template>
-              <ng-template #emptymessage pTemplate="emptymessage">
-                <tr>
-                  <td colspan="8" class="empty-msg">Không có chuyến xe nào có doanh thu trong tháng.</td>
-                </tr>
-              </ng-template>
-            </p-table>
+                    <span class="bar-val">{{ b.val | vnd }}</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-msg">Không có xe nào có doanh thu trong tháng.</div>
+            }
           </div>
         </p-tabpanel>
 
-        <!-- Tab 3: Doanh thu theo tuyến -->
+        <!-- Tab 3: Doanh thu theo tuyến (Chuẩn Prototype: chỉ hiển thị thanh ngang, tuyến 0đ không hiển thị) -->
         <p-tabpanel [value]="2">
           <div class="tab-content">
-            <p-table
-              [value]="dtTuyenList()"
-              [loading]="dangTai()"
-              styleClass="p-datatable-sm p-datatable-striped"
-            >
-              <ng-template #header pTemplate="header">
-                <tr>
-                  <th style="width: 100px">Mã tuyến</th>
-                  <th style="min-width: 200px">Tên tuyến</th>
-                  <th style="width: 100px; text-align: center">Cấp độ</th>
-                  <th style="width: 110px; text-align: right">Độ dài</th>
-                  <th style="width: 100px; text-align: right">Số chuyến</th>
-                  <th style="width: 100px; text-align: right">Số vé</th>
-                  <th style="min-width: 220px">Tỷ lệ đóng góp</th>
-                  <th style="width: 170px; text-align: right">Doanh thu (đ)</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-r pTemplate="body">
-                <tr>
-                  <td><strong>{{ r.maTuyen }}</strong></td>
-                  <td>{{ r.tenTuyen }}</td>
-                  <td style="text-align: center">
-                    <p-tag [value]="'Cấp ' + r.capDo" severity="info" />
-                  </td>
-                  <td style="text-align: right">{{ r.doDaiKm }} km</td>
-                  <td style="text-align: right">{{ r.soChuyen }}</td>
-                  <td style="text-align: right">{{ r.soVe }}</td>
-                  <td>
-                    <div class="progress-wrap">
-                      <p-progressbar [value]="r.tyLe" [showValue]="false" styleClass="h-2" />
-                      <span class="pct-label">{{ r.tyLe | number:'1.1-1' }}%</span>
+            @if (dtTuyenBars.length > 0) {
+              <div class="bars-container">
+                @for (b of dtTuyenBars; track b.label) {
+                  <div class="bar-row">
+                    <span class="bar-label">{{ b.label }}</span>
+                    <div class="bar-track">
+                      <div class="bar-fill" [style.width]="b.w"></div>
                     </div>
-                  </td>
-                  <td style="text-align: right"><strong class="price-val">{{ r.doanhThu | vnd }}</strong></td>
-                </tr>
-              </ng-template>
-              <ng-template #emptymessage pTemplate="emptymessage">
-                <tr>
-                  <td colspan="8" class="empty-msg">Không có dữ liệu tuyến đường trong tháng.</td>
-                </tr>
-              </ng-template>
-            </p-table>
+                    <span class="bar-val">{{ b.val | vnd }}</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-msg">Không có dữ liệu doanh thu tuyến đường trong tháng.</div>
+            }
           </div>
         </p-tabpanel>
 
-        <!-- Tab 4: Doanh thu theo loại xe -->
+        <!-- Tab 4: Doanh thu theo loại xe (Chuẩn Prototype: chỉ hiển thị thanh ngang, loại 0đ không hiển thị) -->
         <p-tabpanel [value]="3">
           <div class="tab-content">
-            <p-table
-              [value]="dtLoaiXeList()"
-              [loading]="dangTai()"
-              styleClass="p-datatable-sm p-datatable-striped"
-            >
-              <ng-template #header pTemplate="header">
-                <tr>
-                  <th style="width: 120px">Mã loại</th>
-                  <th>Loại xe</th>
-                  <th style="width: 110px; text-align: right">Số ghế</th>
-                  <th style="width: 110px; text-align: right">Số chuyến</th>
-                  <th style="width: 110px; text-align: right">Số vé</th>
-                  <th style="min-width: 220px">Tỷ lệ đóng góp</th>
-                  <th style="width: 170px; text-align: right">Doanh thu (đ)</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-r pTemplate="body">
-                <tr>
-                  <td><strong>{{ r.maLoaiXe }}</strong></td>
-                  <td>{{ r.tenLoaiXe }}</td>
-                  <td style="text-align: right">{{ r.soGhe }} chỗ</td>
-                  <td style="text-align: right">{{ r.soChuyen }}</td>
-                  <td style="text-align: right">{{ r.soVe }}</td>
-                  <td>
-                    <div class="progress-wrap">
-                      <p-progressbar [value]="r.tyLe" [showValue]="false" styleClass="h-2" />
-                      <span class="pct-label">{{ r.tyLe | number:'1.1-1' }}%</span>
+            @if (dtLoaiXeBars.length > 0) {
+              <div class="bars-container">
+                @for (b of dtLoaiXeBars; track b.label) {
+                  <div class="bar-row">
+                    <span class="bar-label">{{ b.label }}</span>
+                    <div class="bar-track">
+                      <div class="bar-fill" [style.width]="b.w"></div>
                     </div>
-                  </td>
-                  <td style="text-align: right"><strong class="price-val">{{ r.doanhThu | vnd }}</strong></td>
-                </tr>
-              </ng-template>
-              <ng-template #emptymessage pTemplate="emptymessage">
-                <tr>
-                  <td colspan="7" class="empty-msg">Không có dữ liệu doanh thu loại xe trong tháng.</td>
-                </tr>
-              </ng-template>
-            </p-table>
+                    <span class="bar-val">{{ b.val | vnd }}</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-msg">Không có dữ liệu doanh thu loại xe trong tháng.</div>
+            }
           </div>
         </p-tabpanel>
 

@@ -16,7 +16,6 @@
   gap: 12px;
   font-size: 0.9rem;
   color: #1e40af;
-  line-height: 1.4;
 
   i {
     font-size: 1.25rem;
@@ -25,18 +24,22 @@
   }
 }
 
+// 1. Bộ lọc
 .filter-section {
-  background: var(--p-content-background, #ffffff);
-  border: 1px solid var(--p-content-border-color, #e2e8f0);
-  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #d6d6d9;
+  border-radius: 12px;
   padding: 16px 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
   .filter-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
     gap: 16px;
     align-items: flex-end;
+
+    @media (max-width: 900px) {
+      grid-template-columns: 1fr;
+    }
   }
 
   .filter-item {
@@ -45,164 +48,183 @@
     gap: 6px;
 
     label {
-      font-size: 0.875rem;
+      font-size: 14px;
       font-weight: 500;
-      color: var(--p-text-color, #334155);
-
-      .req {
-        color: #c93a3a;
-      }
+      color: #31333f;
     }
 
-    p-select,
-    input {
+    p-select {
       width: 100%;
     }
   }
+
+  .custom-date-input {
+    width: 100%;
+    height: 40px;
+    background: #f0f2f6;
+    border: 1px solid #d6d6d9;
+    border-radius: 8px;
+    padding: 0 12px;
+    font-size: 14px;
+    color: #31333f;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: #c93a3a;
+      outline: none;
+    }
+  }
+
+  .filter-actions ::ng-deep .btn-update.p-button {
+    height: 40px;
+    min-width: 110px;
+    font-weight: 600;
+    background: #c93a3a !important;
+    border-color: #c93a3a !important;
+    color: #fff !important;
+    border-radius: 8px;
+  }
 }
 
+// 2. 3 Thẻ KPI
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .metric-card {
-  background: var(--p-content-background, #ffffff);
-  border: 1px solid var(--p-content-border-color, #e2e8f0);
+  background: #fff;
+  border: 1px solid #d6d6d9;
   border-radius: 12px;
-  padding: 18px 20px;
+  padding: 16px 20px;
   display: flex;
-  align-items: center;
-  gap: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  flex-direction: column;
+  gap: 8px;
 
-  .metric-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    flex-shrink: 0;
+  .metric-label {
+    font-size: 14px;
+    color: #5f6170;
+    font-weight: 500;
   }
 
-  .metric-content {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-
-    .metric-label {
-      font-size: 0.85rem;
-      color: var(--p-text-muted-color, #64748b);
-      font-weight: 500;
-    }
-
-    .metric-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--p-text-color, #0f172a);
-      line-height: 1.2;
-    }
-
-    .metric-sub {
-      font-size: 0.75rem;
-      color: #94a3b8;
-    }
-  }
-
-  &.metric-revenue {
-    border-left: 4px solid #10b981;
-    .metric-icon {
-      background: #ecfdf5;
-      color: #059669;
-    }
-    .metric-value {
-      color: #047857;
-    }
-  }
-
-  &.metric-tickets {
-    border-left: 4px solid #3b82f6;
-    .metric-icon {
-      background: #eff6ff;
-      color: #2563eb;
-    }
-    .metric-value {
-      color: #1d4ed8;
-    }
-  }
-
-  &.metric-salary {
-    border-left: 4px solid #c93a3a;
-    .metric-icon {
-      background: #fef2f2;
-      color: #dc2626;
-    }
-    .metric-value {
-      color: #b91c1c;
-    }
+  .metric-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.2;
   }
 }
 
+// 3. 5 Tab
 .tabs-section {
-  background: var(--p-content-background, #ffffff);
-  border: 1px solid var(--p-content-border-color, #e2e8f0);
+  background: #fff;
+  border: 1px solid #d6d6d9;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  ::ng-deep .p-tablist-tab-active {
+    color: #c93a3a !important;
+    border-bottom-color: #c93a3a !important;
+    font-weight: 600;
+  }
 
   .tab-content {
-    padding: 16px;
+    padding: 18px 20px;
     display: flex;
     flex-direction: column;
     gap: 16px;
   }
 }
 
-.chot-luong-bar {
+// Phần nút chốt lương ở dưới bảng Tab 1 chuẩn Prototype
+.chot-luong-bottom {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  background: #f8fafc;
-  padding: 12px 16px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
 
-  .chot-status {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #334155;
+  .btn-chot-luong-proto {
+    min-height: 42px;
+    padding: 0 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #c93a3a;
+    color: #ffffff;
+    border: 1px solid #c93a3a;
+    transition: all 0.2s ease;
+    align-self: flex-start;
 
-    i {
-      color: #3b82f6;
+    &:disabled,
+    &.disabled-site {
+      background: #e2e8f0 !important;
+      border-color: #cbd5e1 !important;
+      color: #94a3b8 !important;
+      cursor: not-allowed !important;
+      opacity: 0.65;
     }
+
+    &:hover:not(:disabled) {
+      background: #b52e2e;
+      border-color: #b52e2e;
+    }
+  }
+
+  .bl-info-text {
+    font-size: 14px;
+    color: #5f6170;
   }
 }
 
-.progress-wrap {
+// Biểu đồ thanh ngang thu gọn chuẩn Prototype cho Tab 2, 3, 4 (Không bảng, 0đ không hiển thị)
+.bars-container {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 12px;
+  background: #fff;
+  padding: 8px 4px;
 
-  p-progressbar {
-    flex: 1;
-    min-width: 80px;
-  }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr) 140px;
+    gap: 14px;
+    align-items: center;
+    font-size: 14px;
 
-  .pct-label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #475569;
-    width: 44px;
-    text-align: right;
+    .bar-label {
+      color: #31333f;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bar-track {
+      background: #f0f2f6;
+      border-radius: 4px;
+      height: 16px;
+      overflow: hidden;
+
+      .bar-fill {
+        height: 16px;
+        background: #c93a3a;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+    }
+
+    .bar-val {
+      text-align: right;
+      font-weight: 600;
+      color: #111827;
+      white-space: nowrap;
+    }
   }
 }
 

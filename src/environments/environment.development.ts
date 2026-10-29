@@ -4,7 +4,8 @@ export const environment = {
   apiUrl: '/api',
   requestTimeoutMs: 10000,
   /** Prototype cố định ngày 02/06/2025 để khớp dữ liệu mẫu (SRS mục 1) */
-  fixedToday: '2025-06-02' as string | null,
+  //fixedToday: '2025-06-02' as string | null,
+  fixedToday: null as string | null,
   chiNhanh: [
     { maCN: 'HN', tenCN: 'Hà Nội' },
     { maCN: 'DN', tenCN: 'Đà Nẵng' },
