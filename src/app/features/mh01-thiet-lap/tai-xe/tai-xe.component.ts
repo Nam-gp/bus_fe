@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, effect, inject, signal, untracked } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, effect, inject, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiError } from '@core/http/api-error';
 import { BranchContextService } from '@core/services/branch-context.service';
@@ -44,6 +44,7 @@ export class TaiXeComponent implements OnInit {
   private readonly api = inject(ThietLapApiService);
   private readonly notify = inject(NotifyService);
   private readonly readinessRefresh = inject(ReadinessRefreshService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly dangTai = signal(false);
   readonly dangThem = signal(false);
@@ -115,10 +116,12 @@ export class TaiXeComponent implements OnInit {
       next: (data) => {
         this.dangTai.set(false);
         this.danhSachTaiXe = data || [];
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.dangTai.set(false);
         this.notify.loi(err.thongBao || 'Lỗi khi tải danh sách tài xế');
+        this.cdr.detectChanges();
       },
     });
   }
@@ -158,7 +161,6 @@ export class TaiXeComponent implements OnInit {
       return;
     }
 
-    // Backend tự động gán tài xế vào chi nhánh của site đang gọi qua URL
     // Format năm sinh sang java.time.LocalDate: yyyy-MM-dd (ví dụ 1991-01-01)
     const namSinhPad = String(this.namSinh).padStart(4, '0');
     const ngaySinhStr = `${namSinhPad}-01-01`;
@@ -189,10 +191,12 @@ export class TaiXeComponent implements OnInit {
         this.soDienThoai = '';
         this.taiDanhSach();
         this.readinessRefresh.baoDaLuu();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.dangThem.set(false);
         this.loiThem.set(err);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -211,9 +215,11 @@ export class TaiXeComponent implements OnInit {
         this.notify.thanhCong(`Đã đổi trạng thái tài xế ${tx.maTX} sang "${nhanMoi}".`);
         this.taiDanhSach();
         this.readinessRefresh.baoDaLuu();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.notify.loi(err.thongBao || 'Lỗi khi cập nhật trạng thái tài xế');
+        this.cdr.detectChanges();
       },
     });
   }

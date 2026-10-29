@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiError } from '@core/http/api-error';
 import { BranchContextService } from '@core/services/branch-context.service';
@@ -46,6 +46,7 @@ export class ThamSoComponent implements OnInit {
   private readonly api = inject(ThietLapApiService);
   private readonly notify = inject(NotifyService);
   private readonly readinessRefresh = inject(ReadinessRefreshService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly dangTai = signal(false);
   readonly dangLuuThuLao = signal(false);
@@ -135,10 +136,14 @@ export class ThamSoComponent implements OnInit {
             this.hsDuongKhoCap3 = c3.heSoDuongKho;
           }
         }
+
+        // Kích hoạt ngay Change Detection để Angular đồng bộ giá trị vào các ô input PrimeNG
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.dangTai.set(false);
         this.loiThuLao.set(err);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -185,10 +190,12 @@ export class ThamSoComponent implements OnInit {
         this.dangLuuThuLao.set(false);
         this.notify.thanhCong('Đã cập nhật tham số thù lao thành công.');
         this.readinessRefresh.baoDaLuu();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.dangLuuThuLao.set(false);
         this.loiThuLao.set(err);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -239,10 +246,12 @@ export class ThamSoComponent implements OnInit {
         this.dangLuuBaoDuong.set(false);
         this.notify.thanhCong('Đã cập nhật tham số bảo dưỡng & đăng kiểm thành công.');
         this.readinessRefresh.baoDaLuu();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.dangLuuBaoDuong.set(false);
         this.loiBaoDuong.set(err);
+        this.cdr.detectChanges();
       },
     });
   }
