@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiError } from '@core/http/api-error';
 import { BranchContextService } from '@core/services/branch-context.service';
@@ -52,6 +52,7 @@ export class TuyenGiaComponent implements OnInit {
   private readonly api = inject(ThietLapApiService);
   private readonly notify = inject(NotifyService);
   private readonly readinessRefresh = inject(ReadinessRefreshService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly dangTai = signal(false);
   readonly dangThemTuyen = signal(false);
@@ -94,10 +95,12 @@ export class TuyenGiaComponent implements OnInit {
           giaMuaDLInput: t.giaMuaDL ?? 0,
           giaLeTetInput: t.giaLeTet ?? 0,
         }));
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.dangTai.set(false);
         this.loiLuuGia.set(err);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -134,7 +137,7 @@ export class TuyenGiaComponent implements OnInit {
       this.giaMuaDL <= 0 ||
       this.giaLeTet <= 0
     ) {
-      this.loiThemTuyen.set('Nhập đủ 4 mức giá lớn hơn 0. Tuyến chưa được lưu (E06).');
+      this.loiThemTuyen.set('Mọi mức giá vé khởi tạo phải lớn hơn 0 (E02).');
       return;
     }
 
@@ -160,10 +163,12 @@ export class TuyenGiaComponent implements OnInit {
         this.diemCuoi = '';
         this.taiDanhSachTuyen();
         this.readinessRefresh.baoDaLuu();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.dangThemTuyen.set(false);
         this.loiThemTuyen.set(err);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -214,10 +219,12 @@ export class TuyenGiaComponent implements OnInit {
         this.notify.thanhCong(`Đã cập nhật ${updates.length} mức giá vé thành công.`);
         this.taiDanhSachTuyen();
         this.readinessRefresh.baoDaLuu();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.dangLuuGia.set(false);
         this.loiLuuGia.set(err);
+        this.cdr.detectChanges();
       },
     });
   }

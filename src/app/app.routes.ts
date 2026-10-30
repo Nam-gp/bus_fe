@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, Routes } from '@angular/router';
-import { BranchContextService, SITES, SiteCode } from './core/services/branch-context.service';
+import { BranchContextService } from './core/services/branch-context.service';
 import { ShellComponent } from './layout/shell/shell.component';
 
 /**
@@ -22,15 +22,15 @@ export const siteGuard: CanActivateFn = (route) => {
 
 export const routes: Routes = [
   // Chuyển hướng gốc về site Hà Nội (/hn)
-  { path: '', pathMatch: 'full', redirectTo: 'hn/thiet-lap' },
+  { path: '', pathMatch: 'full', redirectTo: '/hn/thiet-lap' },
 
   // Chuyển hướng các đường dẫn không có prefix site về /hn/...
-  { path: 'thiet-lap', pathMatch: 'full', redirectTo: 'hn/thiet-lap' },
-  { path: 'thiet-lap/:tab', redirectTo: 'hn/thiet-lap/:tab' },
-  { path: 'chuyen-xe', redirectTo: 'hn/chuyen-xe' },
-  { path: 'ban-ve', redirectTo: 'hn/ban-ve' },
-  { path: 'ky-thuat', redirectTo: 'hn/ky-thuat' },
-  { path: 'bao-cao', redirectTo: 'hn/bao-cao' },
+  { path: 'thiet-lap', pathMatch: 'full', redirectTo: '/hn/thiet-lap' },
+  { path: 'thiet-lap/:tab', redirectTo: '/hn/thiet-lap/:tab' },
+  { path: 'chuyen-xe', pathMatch: 'full', redirectTo: '/hn/chuyen-xe' },
+  { path: 'ban-ve', pathMatch: 'full', redirectTo: '/hn/ban-ve' },
+  { path: 'ky-thuat', pathMatch: 'full', redirectTo: '/hn/ky-thuat' },
+  { path: 'bao-cao', pathMatch: 'full', redirectTo: '/hn/bao-cao' },
 
   // Nhánh định tuyến theo site: /hn, /dn, /hcm
   {
@@ -66,5 +66,5 @@ export const routes: Routes = [
       },
     ],
   },
-  { path: '**', redirectTo: 'hn/thiet-lap' },
+  { path: '**', redirectTo: '/hn/thiet-lap' },
 ];
