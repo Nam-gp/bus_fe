@@ -1,4 +1,23 @@
-<section class="placeholder">
-  <h3>Hủy vé</h3>
-  <p>UC-012 Hủy vé · Người B</p>
+<section class="card">
+  <h2>Hủy vé</h2>
+  <label for="chuyenHuyVe">Chuyến đang mở bán <span class="required">*</span></label>
+  <p-select inputId="chuyenHuyVe" [options]="danhSachChuyen()" optionValue="maChuyen" [ngModel]="maChuyen()" (ngModelChange)="doiChuyen($event)" [loading]="dangTaiChuyen()" placeholder="Chọn chuyến đang mở bán" emptyMessage="Không có chuyến đang mở bán">
+    <ng-template #selectedItem let-c>{{ c.maChuyen }} · {{ c.gioKhoiHanhDK | vnDate: true }} · {{ c.tenTuyen }}</ng-template>
+    <ng-template #item let-c>{{ c.maChuyen }} · {{ c.gioKhoiHanhDK | vnDate: true }} · {{ c.tenTuyen }}</ng-template>
+  </p-select>
+  @if (!dangTaiChuyen() && danhSachChuyen().length === 0) { <p class="empty">Chưa có chuyến nào đang mở bán.</p> }
+  <app-error-box [loi]="loi()" />
+</section>
+<section class="card">
+  <h2>Vé của chuyến</h2>
+  <p-table [value]="danhSachVe()" [loading]="dangTaiVe()" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '68rem' }">
+    <ng-template #header><tr><th>Mã vé</th><th>Ghế</th><th>Khách</th><th>SĐT</th><th>Giá</th><th>Ngày bán</th><th>Trạng thái</th><th>Thao tác</th></tr></ng-template>
+    <ng-template #body let-ve><tr [class.da-huy]="ve.trangThai === 'DaHuy'">
+      <td>{{ ve.maVe }}</td><td>{{ ve.soGhe }}</td><td>{{ ve.hoTen }}</td><td>{{ ve.soDienThoai }}</td>
+      <td>@if (ve.giaVe !== null) { {{ ve.giaVe | vnd }} } @else { — }</td><td>{{ ve.ngayBan | vnDate: true }}</td>
+      <td><p-tag [severity]="ve.trangThai === 'DaBan' ? 'success' : 'secondary'" [value]="ve.trangThai | trangThai: 've'" /></td>
+      <td>@if (coTheHuy(ve)) { <p-button label="Hủy" icon="pi pi-times" severity="danger" size="small" [loading]="maVeDangHuy() === ve.maVe" [disabled]="maVeDangHuy() !== null" (onClick)="huyVe(ve)" /> }</td>
+    </tr></ng-template>
+    <ng-template #emptymessage><tr><td colspan="8">@if (maChuyen()) { Chuyến này chưa có vé nào. } @else { Chọn chuyến để xem danh sách vé. }</td></tr></ng-template>
+  </p-table>
 </section>

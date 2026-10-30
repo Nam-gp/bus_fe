@@ -1,4 +1,30 @@
-<section class="placeholder">
-  <h3>Bán vé</h3>
-  <p>UC-011 Bán vé (sơ đồ ghế) · Người B</p>
-</section>
+<div class="mh03-grid">
+  <section class="card">
+    <h2>Chọn chuyến</h2><label for="chuyen">Chuyến đang mở bán <span class="required">*</span></label>
+    <p-select inputId="chuyen" [options]="danhSachChuyen()" optionValue="maChuyen" [ngModel]="maChuyen()" (ngModelChange)="doiChuyen($event)" [loading]="dangTai()" placeholder="Chọn chuyến đang mở bán" emptyMessage="Không có chuyến đang mở bán">
+      <ng-template #selectedItem let-c>{{ c.maChuyen }} · {{ c.gioKhoiHanhDK | vnDate: true }} · {{ c.tenTuyen }}</ng-template>
+      <ng-template #item let-c>{{ c.maChuyen }} · {{ c.gioKhoiHanhDK | vnDate: true }} · {{ c.tenTuyen }}</ng-template>
+    </p-select>
+    @if (!dangTai() && danhSachChuyen().length === 0) { <p class="empty">Chưa có chuyến nào đang mở bán. Hãy tạo chuyến ở trang Chuyến xe.</p> }
+    @if (soDo(); as sd) {
+      <p class="trip-info">{{ sd.tenTuyen }} · xe {{ sd.bienSo }} · khởi hành {{ sd.gioKhoiHanhDK | vnDate: true }} · đã bán {{ daBan() }}/{{ soCho() }} @if (daBan() >= soCho()) { <strong>— HẾT CHỖ</strong> }</p>
+      <p class="fare">Giá vé: ngày {{ sd.gioKhoiHanhDK | vnDate }} thuộc loại “{{ sd.maLoaiNgay }}” → giá tuyến {{ sd.maTuyen }} = @if (sd.giaVe !== null && sd.giaVe > 0) { <strong>{{ sd.giaVe | vnd }}</strong> } @else { <strong>CHƯA CÓ (nhập ở Thiết lập › Tuyến và giá vé)</strong> }</p>
+      <h2>Sơ đồ ghế</h2><app-so-do-ghe [danhSachGhe]="sd.danhSachGhe" [gheDangChon]="gheDangChon()" (chonGhe)="chonGhe($event)" />
+    }
+  </section>
+  <section class="card"><h2>Thông tin khách</h2>
+    <form [formGroup]="form" (ngSubmit)="banVe()" novalidate>
+      <label for="hoTen">Họ tên khách <span class="required">*</span></label><input id="hoTen" pInputText formControlName="hoTen" maxlength="100" />
+      @if (form.controls.hoTen.touched && form.controls.hoTen.hasError('required')) { <small class="field-error">Vui lòng nhập Họ tên khách.</small> }
+      <label for="sdt">Số điện thoại <span class="required">*</span></label><input id="sdt" pInputText formControlName="soDienThoai" inputmode="numeric" maxlength="10" />
+      @if (form.controls.soDienThoai.touched && form.controls.soDienThoai.hasError('required')) { <small class="field-error">Vui lòng nhập Số điện thoại.</small> }
+      @if (form.controls.soDienThoai.touched && form.controls.soDienThoai.hasError('soDienThoai')) { <small class="field-error">Số điện thoại phải gồm 10 chữ số, bắt đầu bằng 0.</small> }
+      <label for="cccd">CCCD</label><input id="cccd" pInputText formControlName="cccd" inputmode="numeric" maxlength="12" />
+      @if (form.controls.cccd.touched && form.controls.cccd.invalid) { <small class="field-error">CCCD phải gồm đúng 12 chữ số.</small> }
+      <label for="email">Email</label><input id="email" pInputText formControlName="email" type="email" />
+      @if (form.controls.email.touched && form.controls.email.invalid) { <small class="field-error">Email không đúng định dạng.</small> }
+      <app-error-box [loi]="loi()" />
+      <p-button type="submit" icon="pi pi-ticket" [loading]="dangBan()" [disabled]="!maChuyen() || dangTai()" [label]="gheDangChon() ? 'Bán vé ghế số ' + gheDangChon() : 'Chọn ghế trên sơ đồ'" />
+    </form>
+  </section>
+</div>

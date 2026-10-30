@@ -1,29 +1,41 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { TrangThaiChuyen } from '@core/constants/trang-thai';
-import { ApiService } from '@core/http/api.service';
+import { ApiService, QueryParams } from '@core/http/api.service';
+import {
+  ChuyenXeResponse,
+  DanhSachChuyenParams,
+  KetThucChuyenRequest,
+  TaoChuyenRequest,
+  XemTruocChuyenRequest,
+  XemTruocChuyenResponse,
+} from './chuyen-xe.models';
 
-/** API MH02 – Người B. DTO chốt theo api/van-hanh.yaml (TODO thay unknown). */
 @Injectable({ providedIn: 'root' })
 export class ChuyenXeApiService {
   private readonly api = inject(ApiService);
+  private readonly basePath = '/api/v1/vanhanh/chuyen-xe';
 
-  danhSachChuyen(loc?: { trangThai?: TrangThaiChuyen; ngay?: string }): Observable<unknown[]> {
-    return this.api.get<unknown[]>('/van-hanh/chuyen', loc);
+  danhSachChuyen(params?: DanhSachChuyenParams): Observable<ChuyenXeResponse[]> {
+    return this.api.get<ChuyenXeResponse[]>(this.basePath, params as QueryParams);
   }
 
-  /** UC-008 – sp_TaoChuyenVaPhanCong (TR03–TR05) */
-  taoChuyenVaPhanCong(body: unknown): Observable<{ maChuyen: string }> {
-    return this.api.post<{ maChuyen: string }>('/van-hanh/chuyen', body);
+  chiTietChuyen(maChuyen: string): Observable<ChuyenXeResponse> {
+    return this.api.get<ChuyenXeResponse>(`${this.basePath}/${encodeURIComponent(maChuyen)}`);
   }
 
-  /** UC-009 – chỉ chuyến Kế hoạch */
-  huyChuyen(maChuyen: string): Observable<void> {
-    return this.api.post<void>(`/van-hanh/chuyen/${encodeURIComponent(maChuyen)}/huy`);
+  xemTruoc(params: XemTruocChuyenRequest): Observable<XemTruocChuyenResponse> {
+    return this.api.get<XemTruocChuyenResponse>(`${this.basePath}/xem-truoc`, params as unknown as QueryParams);
   }
 
-  /** UC-010 – sp_KetThucChuyen (TR06) */
-  ketThucChuyen(maChuyen: string, body: unknown): Observable<void> {
-    return this.api.post<void>(`/van-hanh/chuyen/${encodeURIComponent(maChuyen)}/ket-thuc`, body);
+  taoChuyenVaPhanCong(body: TaoChuyenRequest): Observable<string> {
+    return this.api.post<string>(this.basePath, body);
+  }
+
+  huyChuyen(maChuyen: string): Observable<string> {
+    return this.api.post<string>(`${this.basePath}/${encodeURIComponent(maChuyen)}/huy`);
+  }
+
+  ketThucChuyen(maChuyen: string, body: KetThucChuyenRequest): Observable<string> {
+    return this.api.post<string>(`${this.basePath}/${encodeURIComponent(maChuyen)}/ket-thuc`, body);
   }
 }

@@ -1,0 +1,11 @@
+:host { display: block; }
+.luoi-ghe { display: grid; grid-template-columns: repeat(10, minmax(2.5rem, 1fr)); gap: .6rem; max-width: 46rem; }
+.ghe { min-height: 2.6rem; border: 1px solid var(--p-surface-300); border-radius: .5rem; background: var(--p-surface-0); cursor: pointer; font-weight: 600; }
+.ghe.da-ban, .ghe.khong-ban { background: var(--p-surface-300); color: var(--p-surface-600); cursor: not-allowed; }
+.ghe.khong-ban { background: var(--p-surface-200); text-decoration: line-through; }
+.ghe.dang-chon { background: var(--p-red-500); border-color: var(--p-red-500); color: white; }
+.chu-thich { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; color: var(--p-text-muted-color); font-size: .9rem; }
+.mau { display: inline-block; width: .9rem; height: .9rem; border: 1px solid var(--p-surface-300); border-radius: .2rem; vertical-align: -.1rem; }
+.mau.da-ban, .mau.khong-ban { background: var(--p-surface-300); }.mau.dang-chon { background: var(--p-red-500); }
+.ghi-chu { color: var(--p-text-muted-color); margin-bottom: 0; }
+@media (max-width: 640px) { .luoi-ghe { grid-template-columns: repeat(5, 1fr); } }

@@ -1,0 +1,3 @@
+.card { background: var(--p-content-background); border: 1px solid var(--p-content-border-color); border-radius: .75rem; padding: 1.25rem; margin-bottom: 1rem; overflow-x: auto; }
+h2 { margin-top: 0; font-size: 1.1rem; }.search { max-width: 42rem; } form { display: flex; flex-direction: column; }
+label { font-weight: 600; margin-bottom: .35rem; } label span, small { color: var(--p-red-500); } small { margin-top: .25rem; }

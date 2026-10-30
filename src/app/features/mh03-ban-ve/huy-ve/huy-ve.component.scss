@@ -1,0 +1,8 @@
+.card { background: var(--p-content-background); border: 1px solid var(--p-content-border-color); border-radius: .75rem; padding: 1.25rem; margin-bottom: 1rem; }
+h2 { margin-top: 0; }
+label { display: block; font-weight: 600; margin-bottom: .35rem; }
+.required { color: var(--p-red-500); }
+p-select { display: block; max-width: 44rem; }
+app-error-box { display: block; margin-top: 1rem; }
+.empty { color: var(--p-text-muted-color); }
+:host ::ng-deep tr.da-huy > td { color: var(--p-text-muted-color); opacity: .7; }
