@@ -1,7 +1,7 @@
 import { registerLocaleData } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import localeVi from '@angular/common/locales/vi';
-import { EnvironmentProviders, LOCALE_ID, Provider } from '@angular/core';
+import { EnvironmentProviders, LOCALE_ID, Provider, inject, provideAppInitializer } from '@angular/core';
 import { TitleStrategy } from '@angular/router';
 import Aura from '@primeuix/themes/aura';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -12,6 +12,7 @@ import { branchInterceptor } from './interceptors/branch.interceptor';
 import { errorInterceptor } from './interceptors/error.interceptor';
 import { loadingInterceptor } from './interceptors/loading.interceptor';
 import { AppTitleStrategy } from './services/app-title.strategy';
+import { TodayService } from './services/today.service';
 
 registerLocaleData(localeVi);
 
@@ -29,4 +30,6 @@ export const appProviders: (Provider | EnvironmentProviders)[] = [
   MessageService, // cho p-toast (NotifyService)
   ConfirmationService, // cho p-confirmdialog (ConfirmService)
   { provide: TitleStrategy, useClass: AppTitleStrategy },
+  // Lấy "ngày hiện tại" từ BE trước khi hiện màn hình, để validator/datepicker khớp với CSDL
+  provideAppInitializer(() => inject(TodayService).dongBoTuServer()),
 ];
