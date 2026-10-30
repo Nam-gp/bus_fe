@@ -1,4 +1,47 @@
-<section class="placeholder">
-  <h3>MH04.4 · Lịch bảo dưỡng và đăng kiểm</h3>
-  <p>Đọc vw_LichBaoDuong · Người C</p>
+<section class="qx-card">
+  <div class="qx-card__header">
+    <h3 class="qx-card__title"><i class="pi pi-calendar"></i> Lịch bảo dưỡng, đăng kiểm của tất cả xe</h3>
+  </div>
+
+  <p-table [value]="store.xe()" [loading]="store.dangTai()" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '70rem' }">
+    <ng-template #header pTemplate="header">
+      <tr>
+        <th style="width: 100px">Xe</th>
+        <th style="width: 120px">Biển số</th>
+        <th style="width: 140px">Trạng thái</th>
+        <th style="width: 160px">BD gần nhất</th>
+        <th style="width: 130px; text-align: right">Km làm việc</th>
+        <th style="width: 120px">BD tiếp theo</th>
+        <th style="width: 150px">Tình trạng BD</th>
+        <th style="width: 120px">Hạn đăng kiểm</th>
+        <th style="width: 150px">Tình trạng ĐK</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-x pTemplate="body">
+      <tr [class]="mauDong(x)">
+        <td><strong class="qx-code">{{ x.maXe }}</strong></td>
+        <td>{{ x.bienSo }}</td>
+        <td>{{ x.trangThai | trangThai: 'xe' }}</td>
+        <td>
+          @if (x.ngayBDGanNhat) {
+            {{ x.ngayBDGanNhat | vnDate }}
+          } @else {
+            <span class="muted">Chưa có (từ {{ x.ngayDuaVaoSD | vnDate }})</span>
+          }
+        </td>
+        <td style="text-align: right">{{ x.kmLamViec | vnd: ' km' }}</td>
+        <td>{{ x.ngayBDTiepTheo | vnDate }}</td>
+        <td><app-status-badge [tinhTrang]="x.tinhTrangBD" /></td>
+        <td>{{ x.hanDangKiem ? (x.hanDangKiem | vnDate) : '—' }}</td>
+        <td><app-status-badge [tinhTrang]="x.tinhTrangDK" /></td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage pTemplate="emptymessage">
+      <tr>
+        <td colspan="9" class="qx-empty">Chi nhánh chưa có xe nào.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p class="qx-note">{{ congThuc() }}</p>
 </section>

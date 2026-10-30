@@ -1,4 +1,63 @@
-<section class="placeholder">
-  <h3>MH04.2 · Ghi nhận bảo dưỡng</h3>
-  <p>UC-014 · Người C</p>
+<section class="qx-card" id="form-bao-duong">
+  <div class="qx-card__header">
+    <h3 class="qx-card__title"><i class="pi pi-wrench"></i> Ghi nhận bảo dưỡng</h3>
+  </div>
+
+  <app-error-box [loi]="loiLuu()" />
+
+  <form class="qx-grid" [formGroup]="form" (ngSubmit)="luu()">
+    <div class="qx-field full">
+      <label for="bdXe">Xe <span class="req">*</span></label>
+      <p-select
+        inputId="bdXe"
+        formControlName="maXe"
+        [options]="store.xeOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [filter]="true"
+        filterBy="label"
+        placeholder="Chọn xe"
+      />
+      @if (loi('maXe', 'Xe', true); as l) {
+        <small class="qx-field-error">{{ l }}</small>
+      }
+    </div>
+
+    <div class="qx-field">
+      <label for="bdNgay">Ngày bảo dưỡng <span class="req">*</span></label>
+      <p-datepicker
+        inputId="bdNgay"
+        formControlName="ngayBaoDuong"
+        [maxDate]="ngayToiDa"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        appendTo="body"
+      />
+      @if (loi('ngayBaoDuong', 'Ngày bảo dưỡng', true); as l) {
+        <small class="qx-field-error">{{ l }}</small>
+      }
+    </div>
+
+    <div class="qx-field">
+      <label for="bdChiPhi">Chi phí (đ)</label>
+      <p-inputnumber inputId="bdChiPhi" formControlName="chiPhi" locale="vi-VN" placeholder="VD 3.500.000" />
+      @if (loi('chiPhi', 'Chi phí'); as l) {
+        <small class="qx-field-error">{{ l }}</small>
+      }
+    </div>
+
+    <div class="qx-field full">
+      <label for="bdNoiDung">Nội dung</label>
+      <input id="bdNoiDung" pInputText formControlName="noiDung" maxlength="200" placeholder="VD Bảo dưỡng định kỳ, kiểm tra phanh" />
+      @if (loi('noiDung', 'Nội dung'); as l) {
+        <small class="qx-field-error">{{ l }}</small>
+      }
+    </div>
+  </form>
+
+  <div class="qx-preview">{{ xemTruoc() }}</div>
+
+  <div class="qx-actions">
+    <p-button label="Lưu bảo dưỡng" icon="pi pi-check" severity="danger" [loading]="dangLuu()" (onClick)="luu()" />
+  </div>
 </section>

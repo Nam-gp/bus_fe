@@ -26,3 +26,25 @@ export function tinhTinhTrangHan(
   if (d <= canhBaoNgay) return { muc: 'sap-den-han', soNgay: d, nhan: `Còn ${d} ngày` };
   return { muc: 'binh-thuong', soNgay: d, nhan: 'Bình thường' };
 }
+
+export interface ThamSoDangKiem {
+  tuoiXeCu: number;
+  chuKyDkCu: number;
+  chuKyDkMoi: number;
+}
+
+export interface ChuKyDangKiem {
+  tuoiXe: number;
+  xeCu: boolean;
+  soThang: number;
+}
+
+/**
+ * F12 – xem trước chu kỳ đăng kiểm (bản chính thức là dbo.fn_ChuKyDangKiem trong CSDL).
+ * Tuổi xe = năm hiện tại − năm sản xuất; tuổi ≥ TUOI_XE_CU → CHU_KY_DK_CU, ngược lại CHU_KY_DK_MOI.
+ */
+export function tinhChuKyDangKiem(namSanXuat: number, homNay: string, ts: ThamSoDangKiem): ChuKyDangKiem {
+  const tuoiXe = Number(homNay.slice(0, 4)) - namSanXuat;
+  const xeCu = tuoiXe >= ts.tuoiXeCu;
+  return { tuoiXe, xeCu, soThang: xeCu ? ts.chuKyDkCu : ts.chuKyDkMoi };
+}

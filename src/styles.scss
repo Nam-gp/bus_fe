@@ -22,6 +22,68 @@ body {
   p { margin: 0 0 8px; }
 }
 
+/* ----- Khung form / bảng dùng chung (tiền tố qx-) ----- */
+.qx-page { display: flex; flex-direction: column; gap: 20px; padding-bottom: 24px; }
+.qx-card {
+  background: var(--p-content-background, #ffffff);
+  border: 1px solid var(--p-content-border-color, #e2e8f0);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.qx-card__header {
+  border-bottom: 1px solid var(--p-content-border-color, #f1f5f9);
+  padding-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.qx-card__title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  i { color: #c93a3a; }
+}
+.qx-card__sub { font-size: 0.875rem; color: var(--p-text-muted-color, #64748b); }
+.qx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+.qx-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  label { font-size: 0.875rem; font-weight: 500; }
+  .req { color: #c93a3a; }
+  p-select, p-datepicker, p-inputnumber, input { width: 100%; }
+  .p-inputnumber, .p-datepicker, .p-select { width: 100%; }
+}
+.qx-field-error { font-size: 0.8rem; color: #c93a3a; }
+.qx-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.qx-note { font-size: 0.85rem; color: var(--p-text-muted-color, #64748b); margin: 0; }
+.qx-preview {
+  background: var(--p-surface-100, #f1f5f9);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.qx-empty { text-align: center; color: var(--p-text-muted-color); padding: 20px; }
+.qx-code { font-family: monospace; font-size: 0.95rem; }
+/* Dòng bảng theo F14: đỏ = quá hạn / chưa đăng kiểm, vàng = sắp đến hạn */
+tr.qx-row--do > td { background: #fdecec !important; color: #7a2329; }
+tr.qx-row--vang > td { background: #fff6db !important; color: #6b4e00; }
+
 /* Ẩn badge watermark của PrimeUI */
 #p-license-host {
   display: none !important;

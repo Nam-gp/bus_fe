@@ -1,4 +1,167 @@
-<section class="placeholder">
-  <h3>Tab 3 · Xe và đăng kiểm</h3>
-  <p>UC-005 Thêm xe kèm đăng kiểm lần đầu · UC-006 Xóa xe · Người C</p>
-</section>
+<div class="qx-page">
+  <!-- Phần 1: Thêm xe kèm đăng kiểm lần đầu (UC-005) -->
+  <section class="qx-card">
+    <div class="qx-card__header">
+      <div>
+        <h3 class="qx-card__title"><i class="pi pi-car"></i> Thêm xe kèm đăng kiểm lần đầu (UC-005)</h3>
+        <span class="qx-card__sub">
+          Xe thuộc chi nhánh <strong>{{ branch.tenCN() }}</strong> ({{ branch.maCN() }}) theo site đang làm việc.
+        </span>
+      </div>
+    </div>
+
+    <app-error-box [loi]="loiThem()" />
+
+    <form class="qx-grid" [formGroup]="form" (ngSubmit)="luuXe()">
+      <div class="qx-field">
+        <label for="bienSo">Biển số <span class="req">*</span></label>
+        <input id="bienSo" pInputText formControlName="bienSo" maxlength="12" placeholder="VD 29B-777.88" />
+        @if (loi('bienSo', 'Biển số'); as l) {
+          <small class="qx-field-error">{{ l }}</small>
+        }
+      </div>
+
+      <div class="qx-field">
+        <label for="maLoaiXe">Loại xe <span class="req">*</span></label>
+        <p-select
+          inputId="maLoaiXe"
+          formControlName="maLoaiXe"
+          [options]="loaiXe()"
+          optionLabel="tenLoaiXe"
+          optionValue="maLoaiXe"
+          placeholder="Chọn loại xe"
+        />
+        @if (loi('maLoaiXe', 'Loại xe', true); as l) {
+          <small class="qx-field-error">{{ l }}</small>
+        }
+      </div>
+
+      <div class="qx-field">
+        <label for="namSanXuat">Năm sản xuất <span class="req">*</span></label>
+        <p-inputnumber inputId="namSanXuat" formControlName="namSanXuat" [useGrouping]="false" placeholder="VD 2024" />
+        @if (loi('namSanXuat', 'Năm sản xuất'); as l) {
+          <small class="qx-field-error">{{ l }}</small>
+        }
+      </div>
+
+      <div class="qx-field">
+        <label for="ngayDangKiem">Ngày đăng kiểm đạt lần đầu <span class="req">*</span></label>
+        <p-datepicker
+          inputId="ngayDangKiem"
+          formControlName="ngayDangKiem"
+          [maxDate]="ngayToiDa"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          appendTo="body"
+        />
+        @if (loi('ngayDangKiem', 'Ngày đăng kiểm đạt lần đầu', true); as l) {
+          <small class="qx-field-error">{{ l }}</small>
+        }
+      </div>
+    </form>
+
+    <div class="qx-preview">{{ xemTruocHan() }}</div>
+
+    <div class="qx-actions">
+      <p-button
+        label="Lưu xe và đăng kiểm"
+        icon="pi pi-check"
+        severity="danger"
+        [loading]="dangLuu()"
+        (onClick)="luuXe()"
+      />
+      <p class="qx-note">
+        Một giao dịch sp_ThemXeVaDangKiem: lưu xe và lần đăng kiểm đầu cùng lúc. Gia hạn đăng kiểm định kỳ làm ở màn Kỹ thuật xe.
+      </p>
+    </div>
+  </section>
+
+  <!-- Phần 2: Danh sách xe -->
+  <section class="qx-card">
+    <div class="qx-card__header">
+      <div>
+        <h3 class="qx-card__title"><i class="pi pi-list"></i> Danh sách xe</h3>
+        <span class="qx-card__sub">Phân mảnh ngang theo MaCN · xe chi nhánh khác chỉ xem qua Linked Server.</span>
+      </div>
+      <div class="filters">
+        <input
+          pInputText
+          aria-label="Tìm theo biển số"
+          placeholder="Tìm theo biển số"
+          maxlength="12"
+          [ngModel]="tuKhoa()"
+          (ngModelChange)="tuKhoa.set($event)"
+        />
+        <p-select
+          ariaLabel="Chi nhánh"
+          [options]="chiNhanhOptions"
+          [ngModel]="chiNhanhLoc()"
+          (ngModelChange)="doiChiNhanhLoc($event)"
+          optionLabel="label"
+          optionValue="value"
+        />
+        @if (!coQuyenThaoTac()) {
+          <p-tag severity="secondary" icon="pi pi-eye" [value]="'Chỉ xem (đang ở site ' + branch.tenCN() + ')'" />
+        }
+      </div>
+    </div>
+
+    <app-error-box [loi]="loiDanhSach()" />
+
+    <p-table
+      [value]="xeHienThi()"
+      [loading]="dangTai()"
+      styleClass="p-datatable-sm p-datatable-striped"
+      [tableStyle]="{ 'min-width': '60rem' }"
+    >
+      <ng-template #header pTemplate="header">
+        <tr>
+          <th style="width: 110px">Mã xe</th>
+          <th style="width: 130px">Biển số</th>
+          <th>Loại xe</th>
+          <th style="width: 90px">Năm SX</th>
+          <th style="width: 150px">Trạng thái</th>
+          <th style="width: 230px">Hạn đăng kiểm</th>
+          <th style="width: 100px; text-align: right">Số chuyến</th>
+          @if (coQuyenThaoTac()) {
+            <th style="width: 220px; text-align: center">Thao tác</th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #body let-x pTemplate="body">
+        <tr>
+          <td><strong class="qx-code">{{ x.maXe }}</strong></td>
+          <td>{{ x.bienSo }}</td>
+          <td>{{ x.tenLoaiXe }}</td>
+          <td>{{ x.namSanXuat }}</td>
+          <td><p-tag [value]="x.trangThai | trangThai: 'xe'" [severity]="mauTrangThai[x.trangThai]" /></td>
+          <td>
+            <span class="han">
+              {{ x.hanDangKiem ? (x.hanDangKiem | vnDate) : '' }}
+              <app-status-badge [tinhTrang]="tinhTrangDangKiem(x)" />
+            </span>
+          </td>
+          <td style="text-align: right">{{ x.soChuyen }}</td>
+          @if (coQuyenThaoTac()) {
+            <td style="text-align: center">
+              <p-button
+                [label]="x.trangThai === 'NgungHD' ? 'Hoạt động lại' : 'Ngừng HĐ'"
+                [icon]="x.trangThai === 'NgungHD' ? 'pi pi-play' : 'pi pi-pause'"
+                severity="warn"
+                [text]="true"
+                size="small"
+                (onClick)="doiTrangThai(x)"
+              />
+              <p-button label="Xóa" icon="pi pi-trash" severity="danger" [text]="true" size="small" (onClick)="xoaXe(x)" />
+            </td>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="coQuyenThaoTac() ? 8 : 7" class="qx-empty">Không có xe nào phù hợp.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+</div>

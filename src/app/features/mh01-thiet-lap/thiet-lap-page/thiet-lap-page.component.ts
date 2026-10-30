@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
+import { ReadinessPanelComponent } from '@features/mh01-xe/readiness-panel/readiness-panel.component';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { RouteTabsComponent, TabLink } from '@shared/components/route-tabs/route-tabs.component';
 
-/** MH01 – khung trang (A). Tab 3 là component của C. */
+/** MH01 – khung trang (A). Khung Mức độ sẵn sàng và Tab 3 là component của C (giao tiếp số 7). */
 @Component({
   selector: 'app-thiet-lap-page',
-  imports: [PageHeaderComponent, RouteTabsComponent],
+  imports: [PageHeaderComponent, ReadinessPanelComponent, RouteTabsComponent],
   templateUrl: './thiet-lap-page.component.html',
 })
 export class ThietLapPageComponent {

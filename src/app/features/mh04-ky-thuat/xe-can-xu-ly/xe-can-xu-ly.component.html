@@ -1,4 +1,40 @@
-<section class="placeholder">
-  <h3>MH04.1 · Xe cần xử lý</h3>
-  <p>Quá hạn hoặc còn ≤ CANH_BAO_NGAY ngày · bấm Ghi nhận để điền sẵn form · Người C</p>
+<section class="qx-card">
+  <div class="qx-card__header">
+    <h3 class="qx-card__title">
+      <i class="pi pi-exclamation-triangle"></i>
+      Xe cần xử lý — quá hạn hoặc còn ≤ {{ store.canhBaoNgay() }} ngày (bấm Ghi nhận để điền sẵn form)
+    </h3>
+  </div>
+
+  <p-table [value]="store.xeCanXuLy()" [loading]="store.dangTai()" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '50rem' }">
+    <ng-template #header pTemplate="header">
+      <tr>
+        <th style="width: 110px">Xe</th>
+        <th style="width: 130px">Biển số</th>
+        <th style="width: 140px">Việc cần làm</th>
+        <th style="width: 120px">Hạn</th>
+        <th style="width: 160px">Tình trạng</th>
+        <th>Ảnh hưởng</th>
+        <th style="width: 120px"></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-r pTemplate="body">
+      <tr [class]="r.laDo ? 'qx-row--do' : 'qx-row--vang'">
+        <td><strong class="qx-code">{{ r.maXe }}</strong></td>
+        <td>{{ r.bienSo }}</td>
+        <td>{{ r.viec === 'BaoDuong' ? 'Bảo dưỡng' : 'Đăng kiểm' }}</td>
+        <td>{{ r.han ? (r.han | vnDate) : '—' }}</td>
+        <td><app-status-badge [tinhTrang]="r.tinhTrang" /></td>
+        <td>{{ r.laDo ? 'Bị chặn xếp chuyến' : 'Sắp bị chặn' }}</td>
+        <td style="text-align: center">
+          <p-button label="Ghi nhận" icon="pi pi-pencil" size="small" [outlined]="true" (onClick)="ghiNhan(r)" />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="qx-empty">Không có xe nào quá hạn hoặc sắp đến hạn.</td>
+      </tr>
+    </ng-template>
+  </p-table>
 </section>

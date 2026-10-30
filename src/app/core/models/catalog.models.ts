@@ -38,12 +38,20 @@ export interface TaiXe {
 /** Chủ: C */
 export interface LoaiXe { maLoaiXe: string; tenLoaiXe: string; soGhe: number; }
 
-/** Chủ: C */
+/** Chủ: C. GET /api/v1/doixe/xe */
 export interface Xe {
   maXe: string;
   bienSo: string;
   maLoaiXe: string;
+  tenLoaiXe: string;
+  soGhe: number;
   maCN: string;
   namSanXuat: number;
+  ngayDuaVaoSD: string;
   trangThai: TrangThaiXe;
+  /** 'yyyy-MM-dd'; null = chưa đăng kiểm */
+  hanDangKiem: string | null;
+  soChuyen: number;
+  /** Xe thuộc site đang làm việc mới được xóa / đổi trạng thái */
+  coQuyenThaoTac: boolean;
 }

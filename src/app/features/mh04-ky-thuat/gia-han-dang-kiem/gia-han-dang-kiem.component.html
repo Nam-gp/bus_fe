@@ -1,4 +1,69 @@
-<section class="placeholder">
-  <h3>MH04.3 · Gia hạn đăng kiểm</h3>
-  <p>UC-015 · Người C</p>
+<section class="qx-card" id="form-dang-kiem">
+  <div class="qx-card__header">
+    <h3 class="qx-card__title"><i class="pi pi-verified"></i> Gia hạn đăng kiểm định kỳ</h3>
+  </div>
+
+  <app-error-box [loi]="loiLuu()" />
+
+  <form class="qx-grid" [formGroup]="form" (ngSubmit)="luu()">
+    <div class="qx-field full">
+      <label for="dkXe">Xe <span class="req">*</span></label>
+      <p-select
+        inputId="dkXe"
+        formControlName="maXe"
+        [options]="store.xeOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [filter]="true"
+        filterBy="label"
+        placeholder="Chọn xe"
+      />
+      @if (loi('maXe', 'Xe', true); as l) {
+        <small class="qx-field-error">{{ l }}</small>
+      }
+    </div>
+
+    <div class="qx-field">
+      <label for="dkNgay">Ngày đăng kiểm <span class="req">*</span></label>
+      <p-datepicker
+        inputId="dkNgay"
+        formControlName="ngayDangKiem"
+        [maxDate]="ngayToiDa"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        appendTo="body"
+      />
+      @if (loi('ngayDangKiem', 'Ngày đăng kiểm', true); as l) {
+        <small class="qx-field-error">{{ l }}</small>
+      }
+    </div>
+
+    <div class="qx-field">
+      <label for="dkKetQua">Kết quả <span class="req">*</span></label>
+      <p-select
+        inputId="dkKetQua"
+        formControlName="ketQua"
+        [options]="ketQuaOptions"
+        optionLabel="label"
+        optionValue="value"
+      />
+      @if (loi('ketQua', 'Kết quả', true); as l) {
+        <small class="qx-field-error">{{ l }}</small>
+      }
+    </div>
+
+    <div class="qx-field full">
+      <label for="dkChiPhi">Chi phí (đ)</label>
+      <p-inputnumber inputId="dkChiPhi" formControlName="chiPhi" locale="vi-VN" placeholder="VD 560.000" />
+      @if (loi('chiPhi', 'Chi phí'); as l) {
+        <small class="qx-field-error">{{ l }}</small>
+      }
+    </div>
+  </form>
+
+  <div class="qx-preview">{{ xemTruoc() }}</div>
+
+  <div class="qx-actions">
+    <p-button label="Lưu đăng kiểm" icon="pi pi-check" severity="danger" [loading]="dangLuu()" (onClick)="luu()" />
+  </div>
 </section>

@@ -24,7 +24,7 @@ export const HANG_GPLX = [
   { value: 'FC', label: 'FC' },
 ] as const;
 
-// TODO(C): đối chiếu giá trị lưu thật trong bảng DangKiem
+/** Giá trị lưu trong DangKiem.KetQua (CHECK KetQua IN ('Dat', 'KhongDat')) */
 export const KET_QUA_DANG_KIEM = [
   { value: 'Dat', label: 'Đạt' },
   { value: 'KhongDat', label: 'Không đạt' },
