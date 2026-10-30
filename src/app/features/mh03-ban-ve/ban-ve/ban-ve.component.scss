@@ -1,0 +1,7 @@
+.mh03-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr); gap: 1rem; }
+.card { background: var(--p-content-background); border: 1px solid var(--p-content-border-color); border-radius: .75rem; padding: 1.25rem; }
+h2 { margin: 0 0 1rem; font-size: 1.1rem; } label { display: block; font-weight: 600; margin: .85rem 0 .35rem; }
+p-select, input { width: 100%; } form { display: flex; flex-direction: column; }
+.trip-info { margin: 1rem 0 .5rem; }.fare { background: var(--p-surface-100); border-radius: .5rem; padding: .8rem; }
+.empty { color: var(--p-text-muted-color); }.required, .field-error { color: var(--p-red-500); }.field-error { margin-top: .25rem; }
+app-error-box { margin: 1rem 0; } @media (max-width: 900px) { .mh03-grid { grid-template-columns: 1fr; } }

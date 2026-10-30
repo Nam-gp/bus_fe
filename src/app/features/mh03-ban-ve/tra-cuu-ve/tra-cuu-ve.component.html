@@ -1,4 +1,14 @@
-<section class="placeholder">
-  <h3>Tra cứu vé</h3>
-  <p>UC-013 Tra cứu vé theo số điện thoại · Người B</p>
+<section class="card search">
+  <h2>Điều kiện tìm kiếm</h2>
+  <form [formGroup]="form"><label for="sdtTraCuu">Số điện thoại khách <span>*</span></label>
+    <input id="sdtTraCuu" pInputText formControlName="soDienThoai" maxlength="10" inputmode="numeric" placeholder="Nhập đủ 10 chữ số" />
+    @if (form.controls.soDienThoai.touched && form.controls.soDienThoai.hasError('soDienThoai')) { <small>Số điện thoại phải gồm 10 chữ số, bắt đầu bằng 0.</small> }
+  </form><app-error-box [loi]="loi()" />
+</section>
+<section class="card"><h2>Kết quả</h2>
+  <p-table [value]="ketQua()" [loading]="dangTai()" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '60rem' }">
+    <ng-template #header><tr><th>Mã vé</th><th>Khách</th><th>Chuyến</th><th>Tuyến</th><th>Ghế</th><th>Giá</th><th>Ngày bán</th><th>Trạng thái</th></tr></ng-template>
+    <ng-template #body let-ve><tr><td>{{ ve.maVe }}</td><td>{{ ve.hoTen }}</td><td>{{ ve.maChuyen }}</td><td>{{ ve.tenTuyen }}</td><td>{{ ve.soGhe }}</td><td>{{ ve.giaVe | vnd }}</td><td>{{ ve.ngayBan | vnDate: true }}</td><td><p-tag [severity]="ve.trangThai === 'DaBan' ? 'success' : 'secondary'" [value]="ve.trangThai | trangThai: 've'" /></td></tr></ng-template>
+    <ng-template #emptymessage><tr><td colspan="8">@if (daTim()) { Không tìm thấy vé nào. } @else { Nhập số điện thoại để tra cứu vé. }</td></tr></ng-template>
+  </p-table>
 </section>

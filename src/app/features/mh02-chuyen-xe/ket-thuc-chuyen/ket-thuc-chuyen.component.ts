@@ -1,8 +1,14 @@
-import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-ket-thuc-chuyen',
-  templateUrl: './ket-thuc-chuyen.component.html',
-  styleUrl: './ket-thuc-chuyen.component.scss',
-})
-export class KetThucChuyenComponent {}
+import { Component, DestroyRef, inject, signal } from '@angular/core'; import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ApiError } from '@core/http/api-error'; import { NotifyService } from '@core/services/notify.service'; import { ErrorBoxComponent } from '@shared/components/error-box/error-box.component'; import { VnValidators } from '@shared/validators/vn.validators';
+import { ButtonModule } from 'primeng/button';import { DatePickerModule } from 'primeng/datepicker';import { InputNumberModule } from 'primeng/inputnumber';import { SelectModule } from 'primeng/select';import { finalize } from 'rxjs';
+import { ChuyenXeApiService } from '../chuyen-xe-api.service';import { ChuyenXeResponse } from '../chuyen-xe.models';import { gioDenSauGioDi,parseLocalDateTime,toLocalDateTime } from '../chuyen-xe.logic';
+@Component({selector:'app-ket-thuc-chuyen',imports:[ReactiveFormsModule,SelectModule,InputNumberModule,DatePickerModule,ButtonModule,ErrorBoxComponent],templateUrl:'./ket-thuc-chuyen.component.html',styleUrl:'./ket-thuc-chuyen.component.scss'})
+export class KetThucChuyenComponent{
+ private readonly fb=inject(NonNullableFormBuilder);private readonly api=inject(ChuyenXeApiService);private readonly notify=inject(NotifyService);private readonly destroyRef=inject(DestroyRef);readonly chuyen=signal<ChuyenXeResponse[]>([]);readonly dangTai=signal(false);readonly dangLuu=signal(false);readonly daGui=signal(false);readonly loi=signal<ApiError|string|null>(null);
+ readonly form=this.fb.group({maChuyen:['',Validators.required],kmThucTe:this.fb.control<number|null>(null,[Validators.required,VnValidators.soDuong]),chiPhiVanHanh:this.fb.control<number|null>(0,[Validators.required,VnValidators.khongAm]),gioKhoiHanhTT:this.fb.control<Date|null>(null,Validators.required),gioDenTT:this.fb.control<Date|null>(null,Validators.required)},{validators:gioDenSauGioDi});
+ constructor(){this.tai();this.form.controls.maChuyen.valueChanges.pipe(takeUntilDestroyed()).subscribe(id=>{const c=this.chuyen().find(x=>x.maChuyen===id);if(c)this.form.patchValue({gioKhoiHanhTT:parseLocalDateTime(c.gioKhoiHanhDK),gioDenTT:parseLocalDateTime(c.gioDenDK),kmThucTe:c.doDaiKm});});}
+ tai(){this.dangTai.set(true);this.api.danhSachChuyen().pipe(finalize(()=>this.dangTai.set(false)),takeUntilDestroyed(this.destroyRef)).subscribe({next:d=>{const list=(d??[]).filter(x=>x.trangThai==='KeHoach'||x.trangThai==='DangChay');this.chuyen.set(list);if(list.length)this.form.controls.maChuyen.setValue(list[0].maChuyen);},error:(e:ApiError)=>this.loi.set(e)});} label(c:ChuyenXeResponse){return `${c.maChuyen} · ${c.gioKhoiHanhDK.slice(0,16).replace('T',' ')} · ${c.tenTuyen}`;}
+ fieldError(n:keyof typeof this.form.controls){const c=this.form.controls[n];if(!(c.touched||this.daGui())||!c.errors)return null;if(n==='maChuyen')return 'Vui lòng chọn Chuyến.';if(n==='kmThucTe')return 'Số km thực tế phải lớn hơn 0.';if(n==='chiPhiVanHanh')return 'Chi phí phải là số không âm.';return 'Vui lòng chọn giờ thực tế.';}
+ luu(){if(this.dangLuu())return;this.daGui.set(true);this.loi.set(null);if(this.form.invalid){this.form.markAllAsTouched();return;}const v=this.form.getRawValue();this.dangLuu.set(true);this.api.ketThucChuyen(v.maChuyen,{kmThucTe:v.kmThucTe!,chiPhiVanHanh:v.chiPhiVanHanh!,gioKhoiHanhTT:toLocalDateTime(v.gioKhoiHanhTT!),gioDenTT:toLocalDateTime(v.gioDenTT!)}).pipe(finalize(()=>this.dangLuu.set(false)),takeUntilDestroyed(this.destroyRef)).subscribe({next:()=>{const c=this.chuyen().find(x=>x.maChuyen===v.maChuyen)!;this.notify.thanhCong(`Đã hoàn thành chuyến ${v.maChuyen}. Lương tài xế +${c.thuLaoLai+c.thuLaoPhu} đ; doanh thu ghi nhận ${c.daBan} vé; km làm việc của xe được cập nhật.`);this.form.reset({maChuyen:'',kmThucTe:null,chiPhiVanHanh:0,gioKhoiHanhTT:null,gioDenTT:null});this.daGui.set(false);this.tai();},error:(e:ApiError)=>this.loi.set(e)});}
+}

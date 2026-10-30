@@ -1,0 +1,13 @@
+<div class="chu-thich" aria-label="Chú thích sơ đồ ghế">
+  <span><i class="mau trong"></i> Ghế trống</span><span><i class="mau da-ban"></i> Đã bán</span>
+  <span><i class="mau dang-chon"></i> Đang chọn</span><span><i class="mau khong-ban"></i> Ghế lái/phụ</span>
+</div>
+<div class="luoi-ghe" role="group" aria-label="Sơ đồ ghế">
+  @for (ghe of danhSachGhe(); track ghe.soGhe) {
+    <button type="button" [class]="'ghe ' + trangThai(ghe)"
+      [disabled]="trangThai(ghe) === 'da-ban' || trangThai(ghe) === 'khong-ban'"
+      [attr.aria-pressed]="trangThai(ghe) === 'dang-chon'" [attr.aria-label]="'Ghế ' + ghe.soGhe"
+      (click)="chon(ghe)">{{ ghe.soGhe }}</button>
+  }
+</div>
+<p class="ghi-chu">Ghế lái và ghế phụ xe không bán: {{ danhSachGhe().length }} − 2 = {{ soChoKhach() }} chỗ.</p>
