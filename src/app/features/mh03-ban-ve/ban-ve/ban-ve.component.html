@@ -15,7 +15,7 @@
   <section class="card"><h2>Thông tin khách</h2>
     <form [formGroup]="form" (ngSubmit)="banVe()" novalidate>
       <label for="hoTen">Họ tên khách <span class="required">*</span></label><input id="hoTen" pInputText formControlName="hoTen" maxlength="100" />
-      @if (form.controls.hoTen.touched && form.controls.hoTen.hasError('required')) { <small class="field-error">Vui lòng nhập Họ tên khách.</small> }
+      @if (form.controls.hoTen.touched && (form.controls.hoTen.hasError('required') || form.controls.hoTen.hasError('pattern'))) { <small class="field-error">Vui lòng nhập Họ tên khách.</small> }
       <label for="sdt">Số điện thoại <span class="required">*</span></label><input id="sdt" pInputText formControlName="soDienThoai" inputmode="numeric" maxlength="10" />
       @if (form.controls.soDienThoai.touched && form.controls.soDienThoai.hasError('required')) { <small class="field-error">Vui lòng nhập Số điện thoại.</small> }
       @if (form.controls.soDienThoai.touched && form.controls.soDienThoai.hasError('soDienThoai')) { <small class="field-error">Số điện thoại phải gồm 10 chữ số, bắt đầu bằng 0.</small> }

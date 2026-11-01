@@ -45,7 +45,7 @@ export class BanVeComponent implements OnInit {
   readonly daBan = computed(() => this.soDo()?.danhSachGhe.filter((g) => g.daBan).length ?? 0);
   readonly soCho = computed(() => Math.max(0, (this.soDo()?.danhSachGhe.length ?? 0) - 2));
   readonly form = this.fb.nonNullable.group({
-    hoTen: ['', [Validators.required, Validators.maxLength(100)]],
+    hoTen: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)]],
     soDienThoai: ['', [Validators.required, VnValidators.soDienThoai]],
     cccd: ['', VnValidators.cccd], email: ['', Validators.email],
   });
