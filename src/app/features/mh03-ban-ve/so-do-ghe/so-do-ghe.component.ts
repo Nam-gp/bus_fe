@@ -4,8 +4,9 @@ import { GheResponse } from '../ban-ve.models';
 export type TrangThaiGhe = 'khong-ban' | 'da-ban' | 'dang-chon' | 'trong';
 
 export function trangThaiGhe(ghe: GheResponse, gheDangChon: number | readonly number[] | null): TrangThaiGhe {
-  if (ghe.soGhe <= 2 || !ghe.coTheBan) return 'khong-ban';
+  if (ghe.soGhe <= 2) return 'khong-ban';
   if (ghe.daBan) return 'da-ban';
+  if (!ghe.coTheBan) return 'khong-ban';
   const daChon = Array.isArray(gheDangChon) ? gheDangChon.includes(ghe.soGhe) : ghe.soGhe === gheDangChon;
   return daChon ? 'dang-chon' : 'trong';
 }

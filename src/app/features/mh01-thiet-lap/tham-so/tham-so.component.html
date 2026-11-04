@@ -30,7 +30,7 @@
           mode="decimal"
           suffix=" đ"
           [useGrouping]="true"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaThuLao()"
         />
         <small class="field-hint">Mặc định: 2.000 đ/km</small>
       </div>
@@ -44,7 +44,7 @@
           [max]="5"
           [minFractionDigits]="1"
           [maxFractionDigits]="2"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaThuLao()"
         />
         <small class="field-hint">Mặc định: 1,0</small>
       </div>
@@ -58,7 +58,7 @@
           [max]="5"
           [minFractionDigits]="1"
           [maxFractionDigits]="2"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaThuLao()"
         />
         <small class="field-hint">Mặc định: 0,6</small>
       </div>
@@ -72,7 +72,7 @@
           [max]="5"
           [minFractionDigits]="1"
           [maxFractionDigits]="2"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaThuLao()"
         />
         <small class="field-hint">Mặc định: 1,0</small>
       </div>
@@ -86,7 +86,7 @@
           [max]="5"
           [minFractionDigits]="1"
           [maxFractionDigits]="2"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaThuLao()"
         />
         <small class="field-hint">Mặc định: 1,2</small>
       </div>
@@ -100,7 +100,7 @@
           [max]="5"
           [minFractionDigits]="1"
           [maxFractionDigits]="2"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaThuLao()"
         />
         <small class="field-hint">Mặc định: 1,5</small>
       </div>
@@ -125,13 +125,31 @@
 
     <div class="action-bar">
       @if (branch.canEdit()) {
-        <p-button
-          label="Lưu tham số thù lao"
-          icon="pi pi-check"
-          severity="danger"
-          [loading]="dangLuuThuLao()"
-          (onClick)="luuThuLao()"
-        />
+        @if (dangSuaThuLao()) {
+          <p-button
+            label="Lưu tham số thù lao"
+            icon="pi pi-check"
+            severity="danger"
+            [loading]="dangLuuThuLao()"
+            (onClick)="luuThuLao()"
+          />
+          <p-button
+            label="Hủy"
+            severity="secondary"
+            [text]="true"
+            [disabled]="dangLuuThuLao()"
+            (onClick)="huySuaThuLao()"
+          />
+        } @else {
+          <p-button
+            label="Chỉnh sửa"
+            icon="pi pi-pencil"
+            severity="secondary"
+            [outlined]="true"
+            [disabled]="dangTai() || dangLuuThuLao()"
+            (onClick)="batDauSuaThuLao()"
+          />
+        }
       } @else {
         <p-tag severity="secondary" icon="pi pi-lock" value="Chỉ có quyền lưu tại site Hà Nội (/hn)" />
       }
@@ -157,7 +175,7 @@
           [(ngModel)]="chuKyBd"
           [min]="30"
           suffix=" ngày"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaBaoDuong()"
         />
         <small class="field-hint">Mặc định: 360 ngày</small>
       </div>
@@ -169,7 +187,7 @@
           [(ngModel)]="kmMoiNgayBd"
           [min]="10"
           suffix=" km"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaBaoDuong()"
         />
         <small class="field-hint">Mặc định: 100 km (F11)</small>
       </div>
@@ -181,7 +199,7 @@
           [(ngModel)]="canhBaoNgay"
           [min]="1"
           suffix=" ngày"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaBaoDuong()"
         />
         <small class="field-hint">Mặc định: 15 ngày (F14)</small>
       </div>
@@ -194,7 +212,7 @@
           [min]="1.0"
           [minFractionDigits]="1"
           [maxFractionDigits]="2"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaBaoDuong()"
         />
         <small class="field-hint">Mặc định: 1,0 (≥ 1,0)</small>
       </div>
@@ -207,7 +225,7 @@
           [min]="1.0"
           [minFractionDigits]="1"
           [maxFractionDigits]="2"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaBaoDuong()"
         />
         <small class="field-hint">Mặc định: 1,3 (≥ 1,0)</small>
       </div>
@@ -220,7 +238,7 @@
           [min]="1.0"
           [minFractionDigits]="1"
           [maxFractionDigits]="2"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaBaoDuong()"
         />
         <small class="field-hint">Mặc định: 1,6 (≥ 1,0)</small>
       </div>
@@ -232,7 +250,7 @@
           [(ngModel)]="chuKyDkCu"
           [min]="1"
           suffix=" tháng"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaBaoDuong()"
         />
         <small class="field-hint">Mặc định: 6 tháng</small>
       </div>
@@ -244,7 +262,7 @@
           [(ngModel)]="chuKyDkMoi"
           [min]="1"
           suffix=" tháng"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaBaoDuong()"
         />
         <small class="field-hint">Mặc định: 12 tháng</small>
       </div>
@@ -256,7 +274,7 @@
           [(ngModel)]="tuoiXeCu"
           [min]="1"
           suffix=" năm"
-          [disabled]="!branch.canEdit()"
+          [disabled]="!branch.canEdit() || !dangSuaBaoDuong()"
         />
         <small class="field-hint">Mặc định: 5 năm</small>
       </div>
@@ -282,13 +300,31 @@
 
     <div class="action-bar">
       @if (branch.canEdit()) {
-        <p-button
-          label="Lưu tham số bảo dưỡng, đăng kiểm"
-          icon="pi pi-check"
-          severity="danger"
-          [loading]="dangLuuBaoDuong()"
-          (onClick)="luuBaoDuong()"
-        />
+        @if (dangSuaBaoDuong()) {
+          <p-button
+            label="Lưu tham số bảo dưỡng, đăng kiểm"
+            icon="pi pi-check"
+            severity="danger"
+            [loading]="dangLuuBaoDuong()"
+            (onClick)="luuBaoDuong()"
+          />
+          <p-button
+            label="Hủy"
+            severity="secondary"
+            [text]="true"
+            [disabled]="dangLuuBaoDuong()"
+            (onClick)="huySuaBaoDuong()"
+          />
+        } @else {
+          <p-button
+            label="Chỉnh sửa"
+            icon="pi pi-pencil"
+            severity="secondary"
+            [outlined]="true"
+            [disabled]="dangTai() || dangLuuBaoDuong()"
+            (onClick)="batDauSuaBaoDuong()"
+          />
+        }
       } @else {
         <p-tag severity="secondary" icon="pi pi-lock" value="Chỉ có quyền lưu tại site Hà Nội (/hn)" />
       }
