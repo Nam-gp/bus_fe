@@ -101,6 +101,11 @@
     color: var(--p-text-muted-color, #94a3b8);
   }
 
+  .field-error {
+    color: var(--p-red-500);
+    font-size: 0.8rem;
+  }
+
   p-inputnumber {
     width: 100%;
   }

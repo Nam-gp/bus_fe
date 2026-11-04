@@ -43,6 +43,8 @@ export interface LichLoaiNgayPrototype {
   styleUrl: './tham-so.component.scss',
 })
 export class ThamSoComponent implements OnInit {
+  private static readonly MAC_DINH_CHU_KY_BD = 360;
+
   protected readonly branch = inject(BranchContextService);
   private readonly api = inject(ThietLapApiService);
   private readonly notify = inject(NotifyService);
@@ -68,7 +70,7 @@ export class ThamSoComponent implements OnInit {
   hsLuongCap3 = 1.5;
 
   // Form Bảo dưỡng & Đăng kiểm
-  chuKyBd = 360;
+  chuKyBd = ThamSoComponent.MAC_DINH_CHU_KY_BD;
   kmMoiNgayBd = 100;
   canhBaoNgay = 15;
   hsDuongKhoCap1 = 1.0;
@@ -292,6 +294,17 @@ export class ThamSoComponent implements OnInit {
     });
   }
 
+  get loiChuKyBd(): string | null {
+    return String(Math.trunc(this.chuKyBd)).length > 4 ? 'Độ dài vượt 4 ký tự' : null;
+  }
+
+  chuanHoaChuKyBd(): void {
+    if (this.chuKyBd == null || Number.isNaN(this.chuKyBd) || this.chuKyBd <= 0) {
+      this.chuKyBd = ThamSoComponent.MAC_DINH_CHU_KY_BD;
+      this.cdr.detectChanges();
+    }
+  }
+
   luuBaoDuong(): void {
     if (!this.branch.canEdit()) {
       this.notify.canhBao('Chỉ site Hà Nội (/hn) mới có quyền chỉnh sửa tham số cấu hình.');
@@ -300,7 +313,13 @@ export class ThamSoComponent implements OnInit {
 
     if (!this.dangSuaBaoDuong() || this.dangLuuBaoDuong()) return;
 
+    this.chuanHoaChuKyBd();
     this.loiBaoDuong.set(null);
+    if (this.loiChuKyBd) {
+      this.loiBaoDuong.set('Chu kỳ bảo dưỡng: Độ dài vượt 4 ký tự.');
+      return;
+    }
+
     if (
       this.chuKyBd <= 0 ||
       this.kmMoiNgayBd <= 0 ||
