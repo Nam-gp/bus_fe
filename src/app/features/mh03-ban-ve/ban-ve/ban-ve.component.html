@@ -24,7 +24,7 @@
       <label for="email">Email</label><input id="email" pInputText formControlName="email" type="email" />
       @if (form.controls.email.touched && form.controls.email.invalid) { <small class="field-error">Email không đúng định dạng.</small> }
       <app-error-box [loi]="loi()" />
-      <p-button type="submit" icon="pi pi-ticket" [loading]="dangBan()" [disabled]="!maChuyen() || dangTai()" [label]="gheDangChon() ? 'Bán vé ghế số ' + gheDangChon() : 'Chọn ghế trên sơ đồ'" />
+      <p-button type="submit" icon="pi pi-ticket" [loading]="dangBan()" [disabled]="!maChuyen() || dangTai()" [label]="gheDangChon().length ? 'Bán ' + gheDangChon().length + ' vé · ghế ' + gheDangChon().join(', ') : 'Chọn ghế trên sơ đồ'" />
     </form>
   </section>
 </div>

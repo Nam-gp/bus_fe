@@ -14,9 +14,9 @@ import { VnValidators } from '@shared/validators/vn.validators';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { finalize } from 'rxjs';
+import { concat, finalize, tap } from 'rxjs';
 import { BanVeApiService } from '../ban-ve-api.service';
-import { SoDoGheResponse } from '../ban-ve.models';
+import { BanVeResponse, SoDoGheResponse } from '../ban-ve.models';
 import { SoDoGheComponent } from '../so-do-ghe/so-do-ghe.component';
 
 @Component({
@@ -38,7 +38,7 @@ export class BanVeComponent implements OnInit {
   readonly danhSachChuyen = signal<ChuyenXeResponse[]>([]);
   readonly maChuyen = signal<string | null>(null);
   readonly soDo = signal<SoDoGheResponse | null>(null);
-  readonly gheDangChon = signal<number | null>(null);
+  readonly gheDangChon = signal<readonly number[]>([]);
   readonly dangTai = computed(() => this.soYeuCauDangTai() > 0);
   readonly dangBan = signal(false);
   readonly loi = signal<ApiError | string | null>(null);
@@ -66,7 +66,7 @@ export class BanVeComponent implements OnInit {
   }
   doiChuyen(maChuyen: string | null): void {
     this.lanTaiSoDo++;
-    this.maChuyen.set(maChuyen); this.soDo.set(null); this.gheDangChon.set(null); this.loi.set(null);
+    this.maChuyen.set(maChuyen); this.soDo.set(null); this.gheDangChon.set([]); this.loi.set(null);
     if (maChuyen) this.taiSoDo();
   }
   taiSoDo(): void {
@@ -74,25 +74,43 @@ export class BanVeComponent implements OnInit {
     const lanTai = ++this.lanTaiSoDo;
     this.batDauTai();
     this.api.soDoGhe(ma).pipe(finalize(() => this.ketThucTai()), takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => { if (lanTai === this.lanTaiSoDo) { this.soDo.set(data); this.gheDangChon.set(null); } },
+      next: (data) => { if (lanTai === this.lanTaiSoDo) { this.soDo.set(data); this.gheDangChon.set([]); } },
       error: (err: ApiError) => { if (lanTai === this.lanTaiSoDo) this.loi.set(err); },
     });
   }
-  chonGhe(soGhe: number): void { this.gheDangChon.set(this.gheDangChon() === soGhe ? null : soGhe); this.loi.set(null); }
+  chonGhe(soGhe: number): void {
+    const ds = this.gheDangChon();
+    this.gheDangChon.set(ds.includes(soGhe) ? ds.filter((g) => g !== soGhe) : [...ds, soGhe].sort((a, b) => a - b));
+    this.loi.set(null);
+  }
   banVe(): void {
     if (this.dangBan()) return;
     this.loi.set(null);
-    if (!this.gheDangChon()) { this.loi.set('Chọn một ghế trống trên sơ đồ.'); return; }
+    const dsGhe = this.gheDangChon();
+    if (dsGhe.length === 0) { this.loi.set('Chọn ít nhất một ghế trống trên sơ đồ.'); return; }
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     const maChuyen = this.maChuyen(); if (!maChuyen) return;
     const raw = this.form.getRawValue(); this.dangBan.set(true);
-    this.api.banVe({ maChuyen, soGhe: this.gheDangChon()!, hoTen: raw.hoTen.trim(), soDienThoai: raw.soDienThoai, cccd: raw.cccd.trim() || undefined, email: raw.email.trim() || undefined })
+    const khach = { maChuyen, hoTen: raw.hoTen.trim(), soDienThoai: raw.soDienThoai, cccd: raw.cccd.trim() || undefined, email: raw.email.trim() || undefined };
+    // Bán lần lượt từng ghế cho cùng một khách; dừng ở ghế đầu tiên lỗi.
+    const daBan: BanVeResponse[] = [];
+    concat(...dsGhe.map((soGhe) => this.api.banVe({ ...khach, soGhe }).pipe(tap((ve) => daBan.push(ve)))))
       .pipe(finalize(() => this.dangBan.set(false)), takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: (ve) => {
-          this.notify.thanhCong(`Đã bán vé ${ve.maVe} · ${new Intl.NumberFormat('vi-VN').format(ve.giaVe)} đ (${this.soDo()?.maLoaiNgay ?? ''}).`);
+        complete: () => {
+          this.thongBaoDaBan(daBan);
           this.form.reset(); this.taiSoDo();
         },
-        error: (err: ApiError) => { this.loi.set(err); this.taiSoDo(); },
+        error: (err: ApiError) => {
+          if (daBan.length) this.thongBaoDaBan(daBan);
+          this.loi.set(err); this.taiSoDo();
+        },
       });
+  }
+  private thongBaoDaBan(ves: BanVeResponse[]): void {
+    const tong = ves.reduce((s, v) => s + v.giaVe, 0);
+    const loaiNgay = this.soDo()?.maLoaiNgay ?? '';
+    this.notify.thanhCong(ves.length === 1
+      ? `Đã bán vé ${ves[0].maVe} · ${new Intl.NumberFormat('vi-VN').format(tong)} đ (${loaiNgay}).`
+      : `Đã bán ${ves.length} vé (${ves.map((v) => v.maVe).join(', ')}) · tổng ${new Intl.NumberFormat('vi-VN').format(tong)} đ (${loaiNgay}).`);
   }
 }

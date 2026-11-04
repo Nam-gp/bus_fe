@@ -3,10 +3,11 @@ import { GheResponse } from '../ban-ve.models';
 
 export type TrangThaiGhe = 'khong-ban' | 'da-ban' | 'dang-chon' | 'trong';
 
-export function trangThaiGhe(ghe: GheResponse, gheDangChon: number | null): TrangThaiGhe {
+export function trangThaiGhe(ghe: GheResponse, gheDangChon: number | readonly number[] | null): TrangThaiGhe {
   if (ghe.soGhe <= 2 || !ghe.coTheBan) return 'khong-ban';
   if (ghe.daBan) return 'da-ban';
-  return ghe.soGhe === gheDangChon ? 'dang-chon' : 'trong';
+  const daChon = Array.isArray(gheDangChon) ? gheDangChon.includes(ghe.soGhe) : ghe.soGhe === gheDangChon;
+  return daChon ? 'dang-chon' : 'trong';
 }
 
 @Component({
@@ -17,7 +18,7 @@ export function trangThaiGhe(ghe: GheResponse, gheDangChon: number | null): Tran
 })
 export class SoDoGheComponent {
   readonly danhSachGhe = input.required<readonly GheResponse[]>();
-  readonly gheDangChon = input<number | null>(null);
+  readonly gheDangChon = input<readonly number[]>([]);
   readonly chonGhe = output<number>();
   readonly soChoKhach = computed(() => Math.max(0, this.danhSachGhe().length - 2));
 
