@@ -173,10 +173,17 @@
         <p-inputnumber
           id="chuKyBd"
           [(ngModel)]="chuKyBd"
-          [min]="30"
+          [useGrouping]="false"
+          [maxFractionDigits]="0"
+          [class.ng-invalid]="!!loiChuKyBd"
+          [class.ng-dirty]="!!loiChuKyBd"
           suffix=" ngày"
           [disabled]="!branch.canEdit() || !dangSuaBaoDuong()"
+          (onBlur)="chuanHoaChuKyBd()"
         />
+        @if (loiChuKyBd) {
+          <small class="field-error">{{ loiChuKyBd }}</small>
+        }
         <small class="field-hint">Mặc định: 360 ngày</small>
       </div>
 
