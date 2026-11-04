@@ -13,6 +13,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import {
+  CauHinhTongHopResponse,
   ThamSoBaoDuongRequest,
   ThamSoThuLaoRequest,
   ThietLapApiService,
@@ -49,6 +50,10 @@ export class ThamSoComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
 
   readonly dangTai = signal(false);
+  readonly dangSuaThuLao = signal(false);
+  readonly dangSuaBaoDuong = signal(false);
+  private snapshotThuLao: ThamSoThuLaoRequest | null = null;
+  private snapshotBaoDuong: ThamSoBaoDuongRequest | null = null;
   readonly dangLuuThuLao = signal(false);
   readonly dangLuuBaoDuong = signal(false);
   readonly loiThuLao = signal<ApiError | string | null>(null);
@@ -106,36 +111,8 @@ export class ThamSoComponent implements OnInit {
     this.api.layThamSo().subscribe({
       next: (res) => {
         this.dangTai.set(false);
-        if (res.thamSo) {
-          this.donGiaKm = res.thamSo['DON_GIA_KM'] ?? this.donGiaKm;
-          this.hsLai = res.thamSo['HS_LAI'] ?? this.hsLai;
-          this.hsPhu = res.thamSo['HS_PHU'] ?? this.hsPhu;
-          this.chuKyBd = res.thamSo['CHU_KY_BD'] ?? this.chuKyBd;
-          this.kmMoiNgayBd = res.thamSo['KM_MOI_NGAY_BD'] ?? this.kmMoiNgayBd;
-          this.canhBaoNgay = res.thamSo['CANH_BAO_NGAY'] ?? this.canhBaoNgay;
-          this.chuKyDkCu = res.thamSo['CHU_KY_DK_CU'] ?? this.chuKyDkCu;
-          this.chuKyDkMoi = res.thamSo['CHU_KY_DK_MOI'] ?? this.chuKyDkMoi;
-          this.tuoiXeCu = res.thamSo['TUOI_XE_CU'] ?? this.tuoiXeCu;
-        }
-
-        if (res.doPhucTap && res.doPhucTap.length > 0) {
-          const c1 = res.doPhucTap.find((x) => x.capDo === 1);
-          const c2 = res.doPhucTap.find((x) => x.capDo === 2);
-          const c3 = res.doPhucTap.find((x) => x.capDo === 3);
-
-          if (c1) {
-            this.hsLuongCap1 = c1.heSoLuong;
-            this.hsDuongKhoCap1 = c1.heSoDuongKho;
-          }
-          if (c2) {
-            this.hsLuongCap2 = c2.heSoLuong;
-            this.hsDuongKhoCap2 = c2.heSoDuongKho;
-          }
-          if (c3) {
-            this.hsLuongCap3 = c3.heSoLuong;
-            this.hsDuongKhoCap3 = c3.heSoDuongKho;
-          }
-        }
+        this.apDungThuLao(res);
+        this.apDungBaoDuong(res);
 
         // Kích hoạt ngay Change Detection để Angular đồng bộ giá trị vào các ô input PrimeNG
         this.cdr.detectChanges();
@@ -143,6 +120,116 @@ export class ThamSoComponent implements OnInit {
       error: (err) => {
         this.dangTai.set(false);
         this.loiThuLao.set(err);
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  private apDungThuLao(res: CauHinhTongHopResponse): void {
+    if (res.thamSo) {
+      this.donGiaKm = res.thamSo['DON_GIA_KM'] ?? this.donGiaKm;
+      this.hsLai = res.thamSo['HS_LAI'] ?? this.hsLai;
+      this.hsPhu = res.thamSo['HS_PHU'] ?? this.hsPhu;
+    }
+    for (const item of res.doPhucTap ?? []) {
+      if (item.capDo === 1) this.hsLuongCap1 = item.heSoLuong;
+      if (item.capDo === 2) this.hsLuongCap2 = item.heSoLuong;
+      if (item.capDo === 3) this.hsLuongCap3 = item.heSoLuong;
+    }
+  }
+
+  batDauSuaThuLao(): void {
+    if (!this.branch.canEdit() || this.dangTai() || this.dangLuuThuLao() || this.dangSuaThuLao()) return;
+
+    this.snapshotThuLao = {
+      donGiaKm: this.donGiaKm,
+      hsLai: this.hsLai,
+      hsPhu: this.hsPhu,
+      hsLuongCap1: this.hsLuongCap1,
+      hsLuongCap2: this.hsLuongCap2,
+      hsLuongCap3: this.hsLuongCap3,
+    };
+    this.dangSuaThuLao.set(true);
+  }
+
+  huySuaThuLao(): void {
+    if (this.dangLuuThuLao()) return;
+    if (this.snapshotThuLao) {
+      Object.assign(this, this.snapshotThuLao);
+    }
+    this.snapshotThuLao = null;
+    this.loiThuLao.set(null);
+    this.dangSuaThuLao.set(false);
+  }
+
+  private taiLaiThuLao(): void {
+    this.api.layThamSo().subscribe({
+      next: (res) => {
+        this.apDungThuLao(res);
+        this.dangLuuThuLao.set(false);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.dangLuuThuLao.set(false);
+        this.loiThuLao.set(err);
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  private apDungBaoDuong(res: CauHinhTongHopResponse): void {
+    if (res.thamSo) {
+      this.chuKyBd = res.thamSo['CHU_KY_BD'] ?? this.chuKyBd;
+      this.kmMoiNgayBd = res.thamSo['KM_MOI_NGAY_BD'] ?? this.kmMoiNgayBd;
+      this.canhBaoNgay = res.thamSo['CANH_BAO_NGAY'] ?? this.canhBaoNgay;
+      this.chuKyDkCu = res.thamSo['CHU_KY_DK_CU'] ?? this.chuKyDkCu;
+      this.chuKyDkMoi = res.thamSo['CHU_KY_DK_MOI'] ?? this.chuKyDkMoi;
+      this.tuoiXeCu = res.thamSo['TUOI_XE_CU'] ?? this.tuoiXeCu;
+    }
+    for (const item of res.doPhucTap ?? []) {
+      if (item.capDo === 1) this.hsDuongKhoCap1 = item.heSoDuongKho;
+      if (item.capDo === 2) this.hsDuongKhoCap2 = item.heSoDuongKho;
+      if (item.capDo === 3) this.hsDuongKhoCap3 = item.heSoDuongKho;
+    }
+  }
+
+  batDauSuaBaoDuong(): void {
+    if (!this.branch.canEdit() || this.dangTai() || this.dangLuuBaoDuong() || this.dangSuaBaoDuong()) return;
+
+    this.snapshotBaoDuong = {
+      chuKyBd: this.chuKyBd,
+      kmMoiNgayBd: this.kmMoiNgayBd,
+      canhBaoNgay: this.canhBaoNgay,
+      chuKyDkCu: this.chuKyDkCu,
+      chuKyDkMoi: this.chuKyDkMoi,
+      tuoiXeCu: this.tuoiXeCu,
+      hsDuongKhoCap1: this.hsDuongKhoCap1,
+      hsDuongKhoCap2: this.hsDuongKhoCap2,
+      hsDuongKhoCap3: this.hsDuongKhoCap3,
+    };
+    this.dangSuaBaoDuong.set(true);
+  }
+
+  huySuaBaoDuong(): void {
+    if (this.dangLuuBaoDuong()) return;
+    if (this.snapshotBaoDuong) {
+      Object.assign(this, this.snapshotBaoDuong);
+    }
+    this.snapshotBaoDuong = null;
+    this.loiBaoDuong.set(null);
+    this.dangSuaBaoDuong.set(false);
+  }
+
+  private taiLaiBaoDuong(): void {
+    this.api.layThamSo().subscribe({
+      next: (res) => {
+        this.apDungBaoDuong(res);
+        this.dangLuuBaoDuong.set(false);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.dangLuuBaoDuong.set(false);
+        this.loiBaoDuong.set(err);
         this.cdr.detectChanges();
       },
     });
@@ -161,6 +248,8 @@ export class ThamSoComponent implements OnInit {
       this.notify.canhBao('Chỉ site Hà Nội (/hn) mới có quyền chỉnh sửa tham số cấu hình.');
       return;
     }
+
+    if (!this.dangSuaThuLao() || this.dangLuuThuLao()) return;
 
     this.loiThuLao.set(null);
     if (
@@ -187,9 +276,12 @@ export class ThamSoComponent implements OnInit {
     this.dangLuuThuLao.set(true);
     this.api.luuThamSoThuLao(req).subscribe({
       next: () => {
-        this.dangLuuThuLao.set(false);
+        this.snapshotThuLao = null;
+        this.loiThuLao.set(null);
+        this.dangSuaThuLao.set(false);
         this.notify.thanhCong('Đã cập nhật tham số thù lao thành công.');
         this.readinessRefresh.baoDaLuu();
+        this.taiLaiThuLao();
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -205,6 +297,8 @@ export class ThamSoComponent implements OnInit {
       this.notify.canhBao('Chỉ site Hà Nội (/hn) mới có quyền chỉnh sửa tham số cấu hình.');
       return;
     }
+
+    if (!this.dangSuaBaoDuong() || this.dangLuuBaoDuong()) return;
 
     this.loiBaoDuong.set(null);
     if (
@@ -243,9 +337,12 @@ export class ThamSoComponent implements OnInit {
     this.dangLuuBaoDuong.set(true);
     this.api.luuThamSoBaoDuong(req).subscribe({
       next: () => {
-        this.dangLuuBaoDuong.set(false);
+        this.snapshotBaoDuong = null;
+        this.loiBaoDuong.set(null);
+        this.dangSuaBaoDuong.set(false);
         this.notify.thanhCong('Đã cập nhật tham số bảo dưỡng & đăng kiểm thành công.');
         this.readinessRefresh.baoDaLuu();
+        this.taiLaiBaoDuong();
         this.cdr.detectChanges();
       },
       error: (err) => {
