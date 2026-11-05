@@ -50,6 +50,7 @@
             id="doDaiKm"
             [(ngModel)]="doDaiKm"
             [min]="1"
+            placeholder="VD: 100"
             suffix=" km"
           />
         </div>
@@ -76,6 +77,7 @@
             [(ngModel)]="giaThuong"
             [min]="1"
             mode="decimal"
+            placeholder="VD: 150.000"
             suffix=" đ"
             [useGrouping]="true"
           />
@@ -88,6 +90,7 @@
             [(ngModel)]="giaCuoiTuan"
             [min]="1"
             mode="decimal"
+            placeholder="VD: 170.000"
             suffix=" đ"
             [useGrouping]="true"
           />
@@ -100,6 +103,7 @@
             [(ngModel)]="giaMuaDL"
             [min]="1"
             mode="decimal"
+            placeholder="VD: 190.000"
             suffix=" đ"
             [useGrouping]="true"
           />
@@ -112,6 +116,7 @@
             [(ngModel)]="giaLeTet"
             [min]="1"
             mode="decimal"
+            placeholder="VD: 220.000"
             suffix=" đ"
             [useGrouping]="true"
           />
@@ -151,6 +156,8 @@
             label="Lưu thay đổi giá"
             icon="pi pi-save"
             severity="danger"
+            styleClass="btn-luu-thay-doi-gia"
+            [disabled]="!coThayDoiGia() || dangLuuGia()"
             [loading]="dangLuuGia()"
             (onClick)="luuThayDoiGia()"
           />
@@ -200,7 +207,8 @@
             @if (branch.canEdit()) {
               <p-inputnumber
                 [(ngModel)]="t.giaThuongInput"
-                [min]="1"
+                (ngModelChange)="onGiaInputChange()"
+                [min]="0"
                 mode="decimal"
                 [useGrouping]="true"
                 styleClass="p-inputtext-sm w-full"
@@ -213,7 +221,8 @@
             @if (branch.canEdit()) {
               <p-inputnumber
                 [(ngModel)]="t.giaCuoiTuanInput"
-                [min]="1"
+                (ngModelChange)="onGiaInputChange()"
+                [min]="0"
                 mode="decimal"
                 [useGrouping]="true"
                 styleClass="p-inputtext-sm w-full"
@@ -226,7 +235,8 @@
             @if (branch.canEdit()) {
               <p-inputnumber
                 [(ngModel)]="t.giaMuaDLInput"
-                [min]="1"
+                (ngModelChange)="onGiaInputChange()"
+                [min]="0"
                 mode="decimal"
                 [useGrouping]="true"
                 styleClass="p-inputtext-sm w-full"
@@ -239,7 +249,8 @@
             @if (branch.canEdit()) {
               <p-inputnumber
                 [(ngModel)]="t.giaLeTetInput"
-                [min]="1"
+                (ngModelChange)="onGiaInputChange()"
+                [min]="0"
                 mode="decimal"
                 [useGrouping]="true"
                 styleClass="p-inputtext-sm w-full"

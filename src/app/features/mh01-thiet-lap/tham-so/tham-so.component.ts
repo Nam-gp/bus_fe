@@ -245,6 +245,193 @@ export class ThamSoComponent implements OnInit {
     return Math.round(300 * this.donGiaKm * this.hsLuongCap2 * this.hsPhu);
   }
 
+  // Getters kiểm tra độ dài ký tự
+  get loiDonGiaKm(): string | null {
+    return this.donGiaKm != null && String(Math.trunc(this.donGiaKm)).length > 9
+      ? 'Đơn giá không được vượt quá 9 ký tự'
+      : null;
+  }
+
+  get loiHsLai(): string | null {
+    return this.hsLai != null && String(this.hsLai).length > 5
+      ? 'Hệ số lái xe không được vượt quá 5 ký tự'
+      : null;
+  }
+
+  get loiHsPhu(): string | null {
+    return this.hsPhu != null && String(this.hsPhu).length > 5
+      ? 'Hệ số phụ xe không được vượt quá 5 ký tự'
+      : null;
+  }
+
+  get loiHsLuongCap1(): string | null {
+    return this.hsLuongCap1 != null && String(this.hsLuongCap1).length > 5
+      ? 'Hệ số lương cấp 1 không được vượt quá 5 ký tự'
+      : null;
+  }
+
+  get loiHsLuongCap2(): string | null {
+    return this.hsLuongCap2 != null && String(this.hsLuongCap2).length > 5
+      ? 'Hệ số lương cấp 2 không được vượt quá 5 ký tự'
+      : null;
+  }
+
+  get loiHsLuongCap3(): string | null {
+    return this.hsLuongCap3 != null && String(this.hsLuongCap3).length > 5
+      ? 'Hệ số lương cấp 3 không được vượt quá 5 ký tự'
+      : null;
+  }
+
+  get loiChuKyBd(): string | null {
+    return this.chuKyBd != null && String(Math.trunc(this.chuKyBd)).length > 4
+      ? 'Chu kỳ bảo dưỡng tối đa không được vượt quá 4 ký tự'
+      : null;
+  }
+
+  // Xử lý khi người dùng nhập dữ liệu (ngModelChange) - chặn không cho vượt quá số ký tự
+  onDonGiaKmChange(): void {
+    if (this.donGiaKm != null) {
+      const s = String(Math.trunc(this.donGiaKm));
+      if (s.length > 9) {
+        this.donGiaKm = Number(s.slice(0, 9));
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  onHsLaiChange(): void {
+    if (this.hsLai != null) {
+      const s = String(this.hsLai);
+      if (s.length > 5) {
+        this.hsLai = Number(s.slice(0, 5));
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  onHsPhuChange(): void {
+    if (this.hsPhu != null) {
+      const s = String(this.hsPhu);
+      if (s.length > 5) {
+        this.hsPhu = Number(s.slice(0, 5));
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  onHsLuongCap1Change(): void {
+    if (this.hsLuongCap1 != null) {
+      const s = String(this.hsLuongCap1);
+      if (s.length > 5) {
+        this.hsLuongCap1 = Number(s.slice(0, 5));
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  onHsLuongCap2Change(): void {
+    if (this.hsLuongCap2 != null) {
+      const s = String(this.hsLuongCap2);
+      if (s.length > 5) {
+        this.hsLuongCap2 = Number(s.slice(0, 5));
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  onHsLuongCap3Change(): void {
+    if (this.hsLuongCap3 != null) {
+      const s = String(this.hsLuongCap3);
+      if (s.length > 5) {
+        this.hsLuongCap3 = Number(s.slice(0, 5));
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  onChuKyBdChange(): void {
+    if (this.chuKyBd != null) {
+      const s = String(Math.trunc(this.chuKyBd));
+      if (s.length > 4) {
+        this.chuKyBd = Number(s.slice(0, 4));
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  // Chuẩn hóa khi blur hoặc trước khi lưu (nếu điền 0 hoặc để trống thì mặc định)
+  chuanHoaDonGiaKm(): void {
+    if (this.donGiaKm == null || Number.isNaN(this.donGiaKm) || this.donGiaKm <= 0) {
+      this.donGiaKm = 2000;
+    } else if (String(Math.trunc(this.donGiaKm)).length > 9) {
+      this.donGiaKm = Number(String(Math.trunc(this.donGiaKm)).slice(0, 9));
+    }
+    this.cdr.detectChanges();
+  }
+
+  chuanHoaHsLai(): void {
+    if (this.hsLai == null || Number.isNaN(this.hsLai) || this.hsLai <= 0) {
+      this.hsLai = 1.0;
+    } else if (String(this.hsLai).length > 5) {
+      this.hsLai = Number(String(this.hsLai).slice(0, 5));
+    }
+    this.cdr.detectChanges();
+  }
+
+  chuanHoaHsPhu(): void {
+    if (this.hsPhu == null || Number.isNaN(this.hsPhu) || this.hsPhu <= 0) {
+      this.hsPhu = 0.6;
+    } else if (String(this.hsPhu).length > 5) {
+      this.hsPhu = Number(String(this.hsPhu).slice(0, 5));
+    }
+    this.cdr.detectChanges();
+  }
+
+  chuanHoaHsLuongCap1(): void {
+    if (this.hsLuongCap1 == null || Number.isNaN(this.hsLuongCap1) || this.hsLuongCap1 <= 0) {
+      this.hsLuongCap1 = 1.0;
+    } else if (String(this.hsLuongCap1).length > 5) {
+      this.hsLuongCap1 = Number(String(this.hsLuongCap1).slice(0, 5));
+    }
+    this.cdr.detectChanges();
+  }
+
+  chuanHoaHsLuongCap2(): void {
+    if (this.hsLuongCap2 == null || Number.isNaN(this.hsLuongCap2) || this.hsLuongCap2 <= 0) {
+      this.hsLuongCap2 = 1.2;
+    } else if (String(this.hsLuongCap2).length > 5) {
+      this.hsLuongCap2 = Number(String(this.hsLuongCap2).slice(0, 5));
+    }
+    this.cdr.detectChanges();
+  }
+
+  chuanHoaHsLuongCap3(): void {
+    if (this.hsLuongCap3 == null || Number.isNaN(this.hsLuongCap3) || this.hsLuongCap3 <= 0) {
+      this.hsLuongCap3 = 1.5;
+    } else if (String(this.hsLuongCap3).length > 5) {
+      this.hsLuongCap3 = Number(String(this.hsLuongCap3).slice(0, 5));
+    }
+    this.cdr.detectChanges();
+  }
+
+  chuanHoaChuKyBd(): void {
+    if (this.chuKyBd == null || Number.isNaN(this.chuKyBd) || this.chuKyBd <= 0) {
+      this.chuKyBd = ThamSoComponent.MAC_DINH_CHU_KY_BD; // 360
+    } else if (String(Math.trunc(this.chuKyBd)).length > 4) {
+      this.chuKyBd = Number(String(Math.trunc(this.chuKyBd)).slice(0, 4));
+    }
+    this.cdr.detectChanges();
+  }
+
+  chuanHoaTatCaThuLao(): void {
+    this.chuanHoaDonGiaKm();
+    this.chuanHoaHsLai();
+    this.chuanHoaHsPhu();
+    this.chuanHoaHsLuongCap1();
+    this.chuanHoaHsLuongCap2();
+    this.chuanHoaHsLuongCap3();
+  }
+
   luuThuLao(): void {
     if (!this.branch.canEdit()) {
       this.notify.canhBao('Chỉ site Hà Nội (/hn) mới có quyền chỉnh sửa tham số cấu hình.');
@@ -253,7 +440,29 @@ export class ThamSoComponent implements OnInit {
 
     if (!this.dangSuaThuLao() || this.dangLuuThuLao()) return;
 
+    // Chuẩn hóa trước khi lưu: điền 0 hoặc để trống thì gán giá trị mặc định
+    this.chuanHoaTatCaThuLao();
+
     this.loiThuLao.set(null);
+    if (
+      this.loiDonGiaKm ||
+      this.loiHsLai ||
+      this.loiHsPhu ||
+      this.loiHsLuongCap1 ||
+      this.loiHsLuongCap2 ||
+      this.loiHsLuongCap3
+    ) {
+      this.loiThuLao.set(
+        this.loiDonGiaKm ||
+        this.loiHsLai ||
+        this.loiHsPhu ||
+        this.loiHsLuongCap1 ||
+        this.loiHsLuongCap2 ||
+        this.loiHsLuongCap3
+      );
+      return;
+    }
+
     if (
       this.donGiaKm <= 0 ||
       this.hsLai <= 0 ||
@@ -294,17 +503,6 @@ export class ThamSoComponent implements OnInit {
     });
   }
 
-  get loiChuKyBd(): string | null {
-    return String(Math.trunc(this.chuKyBd)).length > 4 ? 'Độ dài vượt 4 ký tự' : null;
-  }
-
-  chuanHoaChuKyBd(): void {
-    if (this.chuKyBd == null || Number.isNaN(this.chuKyBd) || this.chuKyBd <= 0) {
-      this.chuKyBd = ThamSoComponent.MAC_DINH_CHU_KY_BD;
-      this.cdr.detectChanges();
-    }
-  }
-
   luuBaoDuong(): void {
     if (!this.branch.canEdit()) {
       this.notify.canhBao('Chỉ site Hà Nội (/hn) mới có quyền chỉnh sửa tham số cấu hình.');
@@ -316,7 +514,7 @@ export class ThamSoComponent implements OnInit {
     this.chuanHoaChuKyBd();
     this.loiBaoDuong.set(null);
     if (this.loiChuKyBd) {
-      this.loiBaoDuong.set('Chu kỳ bảo dưỡng: Độ dài vượt 4 ký tự.');
+      this.loiBaoDuong.set(this.loiChuKyBd);
       return;
     }
 

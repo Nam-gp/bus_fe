@@ -22,6 +22,10 @@ import {
 } from '../thiet-lap-api.service';
 
 interface TuyenEditableRow extends TuyenResponse {
+  giaThuongGoc: number;
+  giaCuoiTuanGoc: number;
+  giaMuaDLGoc: number;
+  giaLeTetGoc: number;
   giaThuongInput: number;
   giaCuoiTuanInput: number;
   giaMuaDLInput: number;
@@ -60,15 +64,15 @@ export class TuyenGiaComponent implements OnInit {
   readonly loiThemTuyen = signal<ApiError | string | null>(null);
   readonly loiLuuGia = signal<ApiError | string | null>(null);
 
-  // Form Thêm tuyến
+  // Form Thêm tuyến (kèm giá vé)
   diemDau = '';
   diemCuoi = '';
-  doDaiKm = 100;
+  doDaiKm: number | null = null;
   capDo = 1;
-  giaThuong = 150000;
-  giaCuoiTuan = 170000;
-  giaMuaDL = 190000;
-  giaLeTet = 220000;
+  giaThuong: number | null = null;
+  giaCuoiTuan: number | null = null;
+  giaMuaDL: number | null = null;
+  giaLeTet: number | null = null;
 
   readonly capDoOptions = [
     { label: 'Cấp 1 · Đường bằng', value: 1 },
@@ -88,13 +92,27 @@ export class TuyenGiaComponent implements OnInit {
     this.api.layDanhSachTuyen().subscribe({
       next: (list) => {
         this.dangTai.set(false);
-        this.danhSachTuyen = (list || []).map((t) => ({
-          ...t,
-          giaThuongInput: t.giaThuong ?? 0,
-          giaCuoiTuanInput: t.giaCuoiTuan ?? 0,
-          giaMuaDLInput: t.giaMuaDL ?? 0,
-          giaLeTetInput: t.giaLeTet ?? 0,
-        }));
+        this.danhSachTuyen = (list || []).map((t) => {
+          const gt = Number(t.giaThuong ?? 0);
+          const gct = Number(t.giaCuoiTuan ?? 0);
+          const gmdl = Number(t.giaMuaDL ?? 0);
+          const glt = Number(t.giaLeTet ?? 0);
+          return {
+            ...t,
+            giaThuong: gt,
+            giaCuoiTuan: gct,
+            giaMuaDL: gmdl,
+            giaLeTet: glt,
+            giaThuongGoc: gt,
+            giaCuoiTuanGoc: gct,
+            giaMuaDLGoc: gmdl,
+            giaLeTetGoc: glt,
+            giaThuongInput: gt,
+            giaCuoiTuanInput: gct,
+            giaMuaDLInput: gmdl,
+            giaLeTetInput: glt,
+          };
+        });
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -103,6 +121,20 @@ export class TuyenGiaComponent implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  /**
+   * Clear toàn bộ dữ liệu form input sau khi tạo tuyến và giá thành công
+   */
+  clearFormTaoTuyen(): void {
+    this.diemDau = '';
+    this.diemCuoi = '';
+    this.doDaiKm = null;
+    this.capDo = 1;
+    this.giaThuong = null;
+    this.giaCuoiTuan = null;
+    this.giaMuaDL = null;
+    this.giaLeTet = null;
   }
 
   themTuyen(): void {
@@ -127,15 +159,15 @@ export class TuyenGiaComponent implements OnInit {
       this.loiThemTuyen.set('Điểm đầu và điểm cuối phải khác nhau (E04).');
       return;
     }
-    if (this.doDaiKm <= 0) {
+    if (!this.doDaiKm || this.doDaiKm <= 0) {
       this.loiThemTuyen.set('Độ dài tuyến phải lớn hơn 0 km (E05).');
       return;
     }
     if (
-      this.giaThuong <= 0 ||
-      this.giaCuoiTuan <= 0 ||
-      this.giaMuaDL <= 0 ||
-      this.giaLeTet <= 0
+      !this.giaThuong || this.giaThuong <= 0 ||
+      !this.giaCuoiTuan || this.giaCuoiTuan <= 0 ||
+      !this.giaMuaDL || this.giaMuaDL <= 0 ||
+      !this.giaLeTet || this.giaLeTet <= 0
     ) {
       this.loiThemTuyen.set('Mọi mức giá vé khởi tạo phải lớn hơn 0 (E02).');
       return;
@@ -159,8 +191,7 @@ export class TuyenGiaComponent implements OnInit {
         this.notify.thanhCong(
           `Đã thêm tuyến ${tuyenMoi.maTuyen} (${tuyenMoi.diemDau} - ${tuyenMoi.diemCuoi}) kèm đủ 4 mức giá.`
         );
-        this.diemDau = '';
-        this.diemCuoi = '';
+        this.clearFormTaoTuyen();
         this.taiDanhSachTuyen();
         this.readinessRefresh.baoDaLuu();
         this.cdr.detectChanges();
@@ -173,6 +204,23 @@ export class TuyenGiaComponent implements OnInit {
     });
   }
 
+  /**
+   * Kiểm tra xem có bất kỳ dòng tuyến xe nào được chỉnh sửa giá so với giá gốc hay không
+   */
+  coThayDoiGia(): boolean {
+    return this.danhSachTuyen.some(
+      (t) =>
+        Number(t.giaThuongInput ?? 0) !== Number(t.giaThuongGoc ?? 0) ||
+        Number(t.giaCuoiTuanInput ?? 0) !== Number(t.giaCuoiTuanGoc ?? 0) ||
+        Number(t.giaMuaDLInput ?? 0) !== Number(t.giaMuaDLGoc ?? 0) ||
+        Number(t.giaLeTetInput ?? 0) !== Number(t.giaLeTetGoc ?? 0)
+    );
+  }
+
+  onGiaInputChange(): void {
+    this.cdr.detectChanges();
+  }
+
   luuThayDoiGia(): void {
     if (!this.branch.canEdit()) {
       this.notify.canhBao('Chỉ site Hà Nội (/hn) mới có quyền cập nhật bảng giá vé.');
@@ -183,26 +231,35 @@ export class TuyenGiaComponent implements OnInit {
     const updates: CapNhatGiaVeRequest[] = [];
 
     for (const t of this.danhSachTuyen) {
+      const coDoiThuong = t.giaThuongInput !== t.giaThuongGoc;
+      const coDoiCuoiTuan = t.giaCuoiTuanInput !== t.giaCuoiTuanGoc;
+      const coDoiMuaDL = t.giaMuaDLInput !== t.giaMuaDLGoc;
+      const coDoiLeTet = t.giaLeTetInput !== t.giaLeTetGoc;
+
+      if (!coDoiThuong && !coDoiCuoiTuan && !coDoiMuaDL && !coDoiLeTet) {
+        continue;
+      }
+
       if (
-        t.giaThuongInput <= 0 ||
-        t.giaCuoiTuanInput <= 0 ||
-        t.giaMuaDLInput <= 0 ||
-        t.giaLeTetInput <= 0
+        (coDoiThuong && (t.giaThuongInput == null || t.giaThuongInput <= 0)) ||
+        (coDoiCuoiTuan && (t.giaCuoiTuanInput == null || t.giaCuoiTuanInput <= 0)) ||
+        (coDoiMuaDL && (t.giaMuaDLInput == null || t.giaMuaDLInput <= 0)) ||
+        (coDoiLeTet && (t.giaLeTetInput == null || t.giaLeTetInput <= 0))
       ) {
-        this.loiLuuGia.set(`Mọi mức giá của tuyến ${t.maTuyen} phải lớn hơn 0.`);
+        this.loiLuuGia.set(`Mọi mức giá thay đổi của tuyến ${t.maTuyen} phải lớn hơn 0.`);
         return;
       }
 
-      if (t.giaThuongInput !== t.giaThuong) {
+      if (coDoiThuong) {
         updates.push({ maTuyen: t.maTuyen, maLoaiNgay: 'THUONG', giaVe: t.giaThuongInput });
       }
-      if (t.giaCuoiTuanInput !== t.giaCuoiTuan) {
+      if (coDoiCuoiTuan) {
         updates.push({ maTuyen: t.maTuyen, maLoaiNgay: 'CUOITUAN', giaVe: t.giaCuoiTuanInput });
       }
-      if (t.giaMuaDLInput !== t.giaMuaDL) {
+      if (coDoiMuaDL) {
         updates.push({ maTuyen: t.maTuyen, maLoaiNgay: 'MUADL', giaVe: t.giaMuaDLInput });
       }
-      if (t.giaLeTetInput !== t.giaLeTet) {
+      if (coDoiLeTet) {
         updates.push({ maTuyen: t.maTuyen, maLoaiNgay: 'LETET', giaVe: t.giaLeTetInput });
       }
     }

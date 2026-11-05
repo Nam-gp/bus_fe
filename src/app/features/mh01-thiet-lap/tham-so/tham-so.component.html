@@ -26,12 +26,17 @@
         <p-inputnumber
           id="donGiaKm"
           [(ngModel)]="donGiaKm"
-          [min]="1"
+          [min]="0"
           mode="decimal"
           suffix=" đ"
           [useGrouping]="true"
           [disabled]="!branch.canEdit() || !dangSuaThuLao()"
+          (ngModelChange)="onDonGiaKmChange()"
+          (onBlur)="chuanHoaDonGiaKm()"
         />
+        @if (loiDonGiaKm) {
+          <small class="field-error">{{ loiDonGiaKm }}</small>
+        }
         <small class="field-hint">Mặc định: 2.000 đ/km</small>
       </div>
 
@@ -40,12 +45,16 @@
         <p-inputnumber
           id="hsLai"
           [(ngModel)]="hsLai"
-          [min]="0.1"
-          [max]="5"
+          [min]="0"
           [minFractionDigits]="1"
-          [maxFractionDigits]="2"
+          [maxFractionDigits]="3"
           [disabled]="!branch.canEdit() || !dangSuaThuLao()"
+          (ngModelChange)="onHsLaiChange()"
+          (onBlur)="chuanHoaHsLai()"
         />
+        @if (loiHsLai) {
+          <small class="field-error">{{ loiHsLai }}</small>
+        }
         <small class="field-hint">Mặc định: 1,0</small>
       </div>
 
@@ -54,12 +63,16 @@
         <p-inputnumber
           id="hsPhu"
           [(ngModel)]="hsPhu"
-          [min]="0.1"
-          [max]="5"
+          [min]="0"
           [minFractionDigits]="1"
-          [maxFractionDigits]="2"
+          [maxFractionDigits]="3"
           [disabled]="!branch.canEdit() || !dangSuaThuLao()"
+          (ngModelChange)="onHsPhuChange()"
+          (onBlur)="chuanHoaHsPhu()"
         />
+        @if (loiHsPhu) {
+          <small class="field-error">{{ loiHsPhu }}</small>
+        }
         <small class="field-hint">Mặc định: 0,6</small>
       </div>
 
@@ -68,12 +81,16 @@
         <p-inputnumber
           id="hsLuongCap1"
           [(ngModel)]="hsLuongCap1"
-          [min]="0.1"
-          [max]="5"
+          [min]="0"
           [minFractionDigits]="1"
-          [maxFractionDigits]="2"
+          [maxFractionDigits]="3"
           [disabled]="!branch.canEdit() || !dangSuaThuLao()"
+          (ngModelChange)="onHsLuongCap1Change()"
+          (onBlur)="chuanHoaHsLuongCap1()"
         />
+        @if (loiHsLuongCap1) {
+          <small class="field-error">{{ loiHsLuongCap1 }}</small>
+        }
         <small class="field-hint">Mặc định: 1,0</small>
       </div>
 
@@ -82,12 +99,16 @@
         <p-inputnumber
           id="hsLuongCap2"
           [(ngModel)]="hsLuongCap2"
-          [min]="0.1"
-          [max]="5"
+          [min]="0"
           [minFractionDigits]="1"
-          [maxFractionDigits]="2"
+          [maxFractionDigits]="3"
           [disabled]="!branch.canEdit() || !dangSuaThuLao()"
+          (ngModelChange)="onHsLuongCap2Change()"
+          (onBlur)="chuanHoaHsLuongCap2()"
         />
+        @if (loiHsLuongCap2) {
+          <small class="field-error">{{ loiHsLuongCap2 }}</small>
+        }
         <small class="field-hint">Mặc định: 1,2</small>
       </div>
 
@@ -96,12 +117,16 @@
         <p-inputnumber
           id="hsLuongCap3"
           [(ngModel)]="hsLuongCap3"
-          [min]="0.1"
-          [max]="5"
+          [min]="0"
           [minFractionDigits]="1"
-          [maxFractionDigits]="2"
+          [maxFractionDigits]="3"
           [disabled]="!branch.canEdit() || !dangSuaThuLao()"
+          (ngModelChange)="onHsLuongCap3Change()"
+          (onBlur)="chuanHoaHsLuongCap3()"
         />
+        @if (loiHsLuongCap3) {
+          <small class="field-error">{{ loiHsLuongCap3 }}</small>
+        }
         <small class="field-hint">Mặc định: 1,5</small>
       </div>
     </div>
@@ -173,12 +198,14 @@
         <p-inputnumber
           id="chuKyBd"
           [(ngModel)]="chuKyBd"
+          [min]="0"
           [useGrouping]="false"
           [maxFractionDigits]="0"
           [class.ng-invalid]="!!loiChuKyBd"
           [class.ng-dirty]="!!loiChuKyBd"
           suffix=" ngày"
           [disabled]="!branch.canEdit() || !dangSuaBaoDuong()"
+          (ngModelChange)="onChuKyBdChange()"
           (onBlur)="chuanHoaChuKyBd()"
         />
         @if (loiChuKyBd) {

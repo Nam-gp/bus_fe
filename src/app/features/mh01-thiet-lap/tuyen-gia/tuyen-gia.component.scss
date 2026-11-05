@@ -46,6 +46,43 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 12px;
+
+    ::ng-deep .btn-luu-thay-doi-gia {
+      transition: all 0.2s ease-in-out;
+
+      /* Khi chưa chỉnh sửa giá (disabled): nút mờ xám rõ rệt, không sáng đỏ */
+      &:disabled,
+      &.p-disabled {
+        background: #e2e8f0 !important;
+        border-color: #cbd5e1 !important;
+        color: #94a3b8 !important;
+        opacity: 0.75 !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+
+        .p-button-icon {
+          color: #94a3b8 !important;
+        }
+      }
+
+      /* Khi có thay đổi giá (enabled): nút sáng đỏ nổi bật */
+      &:not(:disabled):not(.p-disabled) {
+        background: #c93a3a !important;
+        border-color: #c93a3a !important;
+        color: #ffffff !important;
+        cursor: pointer !important;
+        box-shadow: 0 2px 8px rgba(201, 58, 58, 0.35) !important;
+
+        &:hover {
+          background: #b22f2f !important;
+          border-color: #b22f2f !important;
+        }
+
+        .p-button-icon {
+          color: #ffffff !important;
+        }
+      }
+    }
   }
 
   .section-title {
